@@ -1,0 +1,19 @@
+{
+    "manifest_version": 3,
+    "name": "AI Prompt Generator",
+    "version": "1.0",
+    "description": "Generate optimized prompts for better AI interactions",
+    "action": {
+        "default_popup": "popup.html"
+    },
+    "permissions": [
+        "storage",
+        "activeTab",
+        "identity",
+        "identity.email"
+    ],
+    "oauth2": {
+        "client_id": "906955179542-qp4ppjje6vc3shukpebig77uvft6o7gk.apps.googleusercontent.com",
+        "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
+    }
+}

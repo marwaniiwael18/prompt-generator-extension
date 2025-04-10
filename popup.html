@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>AI Prompt Generator</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <h1>AI Prompt Generator</h1>
+    
+    <div class="input-section">
+      <label for="userInput">What do you want to ask or request?</label>
+      <textarea id="userInput" placeholder="Example: I need help with JavaScript closures"></textarea>
+      
+      <div class="options-row">
+        <div class="prompt-type">
+          <label for="promptType">Prompt Type:</label>
+          <select id="promptType">
+            <option value="question">Question</option>
+            <option value="creative">Creative Task</option>
+            <option value="coding">Code/Technical</option>
+            <option value="explanation">Explanation</option>
+            <option value="brainstorm">Brainstorming</option>
+          </select>
+        </div>
+      </div>
+      
+      <button id="generateBtn">Generate Prompt</button>
+    </div>
+    
+    <div class="output-section hidden">
+      <label for="generatedPrompt">Generated Prompt:</label>
+      <textarea id="generatedPrompt" readonly></textarea>
+      
+      <div class="action-buttons">
+        <button id="copyBtn">Copy</button>
+        <button id="saveBtn">Save</button>
+        <button id="editBtn">Edit</button>
+      </div>
+    </div>
+    
+    <div class="settings">
+      <button id="settingsBtn">Settings</button>
+    </div>
+    
+    <!-- Footer Section -->
+    <footer class="footer">
+      <p>Developed by Wael Marwani</p>
+      <p>&copy; 2025 AI Prompt Generator</p>
+    </footer>
+  </div>
+  
+  <div id="settingsModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h2>Settings</h2>
+      <div class="setting-item">
+        <label for="apiKey">Google AI Studio API Key:</label>
+        <input type="password" id="apiKey" placeholder="Enter your API key from https://aistudio.google.com/apikey">
+      </div>
+      <button id="saveSettingsBtn">Save Settings</button>
+    </div>
+  </div>
+  
+  <script src="popup.js"></script>
+</body>
+</html>
