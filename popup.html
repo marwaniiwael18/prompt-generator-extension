@@ -40,7 +40,7 @@
     </div>
     
     <div class="settings">
-      <button id="settingsBtn">Settings</button>
+      <button id="settingsBtn" style="display: none;">Settings</button> <!-- Hide the settings button -->
     </div>
     
     <!-- Footer Section -->
@@ -48,18 +48,6 @@
       <p>Developed by Wael Marwani</p>
       <p>&copy; 2025 AI Prompt Generator</p>
     </footer>
-  </div>
-  
-  <div id="settingsModal" class="modal">
-    <div class="modal-content">
-      <span class="close">&times;</span>
-      <h2>Settings</h2>
-      <div class="setting-item">
-        <label for="apiKey">Google AI Studio API Key:</label>
-        <input type="password" id="apiKey" placeholder="Enter your API key from https://aistudio.google.com/apikey">
-      </div>
-      <button id="saveSettingsBtn">Save Settings</button>
-    </div>
   </div>
   
   <script src="popup.js"></script>
