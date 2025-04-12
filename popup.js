@@ -54,6 +54,48 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 1500);
   });
 
+  // Add a new button to use the prompt on the current website
+  const usePromptBtn = document.createElement('button');
+  usePromptBtn.id = 'usePromptBtn';
+  usePromptBtn.textContent = 'Use on Page';
+  usePromptBtn.setAttribute('data-tooltip', 'Insert prompt into active website');
+  document.querySelector('.action-buttons').appendChild(usePromptBtn);
+
+  // Use prompt on website functionality
+  usePromptBtn.addEventListener('click', function() {
+      const promptText = generatedPrompt.value.trim();
+      if (!promptText) return;
+      
+      chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+          if (tabs[0]) {
+              chrome.tabs.sendMessage(
+                  tabs[0].id,
+                  { action: "insertPrompt", prompt: promptText },
+                  function(response) {
+                      if (response && response.success) {
+                          const originalText = usePromptBtn.textContent;
+                          usePromptBtn.textContent = 'Inserted!';
+                          setTimeout(() => {
+                              usePromptBtn.textContent = originalText;
+                          }, 1500);
+                      } else {
+                          alert('Could not insert prompt. Please try again or make sure you\'re on a compatible website.');
+                      }
+                  }
+              );
+          }
+      });
+  });
+
+  // Check for selected text from context menu
+  chrome.storage.local.get('selectedText', function(data) {
+      if (data.selectedText) {
+          userInput.value = data.selectedText;
+          // Clear the stored text
+          chrome.storage.local.remove('selectedText');
+      }
+  });
+
   // Save button functionality
   saveBtn.addEventListener('click', function() {
       const promptToSave = generatedPrompt.value.trim();

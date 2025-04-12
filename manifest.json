@@ -12,6 +12,15 @@
         "identity",
         "identity.email"
     ],
+    "content_scripts": [
+        {
+            "matches": ["<all_urls>"],
+            "js": ["content.js"]
+        }
+    ],
+    "host_permissions": [
+        "<all_urls>"
+    ],
     "oauth2": {
         "client_id": "906955179542-qp4ppjje6vc3shukpebig77uvft6o7gk.apps.googleusercontent.com",
         "scopes": ["https://www.googleapis.com/auth/userinfo.email"]

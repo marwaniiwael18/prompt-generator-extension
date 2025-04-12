@@ -208,6 +208,8 @@ button:active {
 
 .action-buttons button {
     flex: 1;
+    font-size: 12px;
+    padding: 8px 10px;
     position: relative;
     overflow: hidden;
 }
@@ -235,6 +237,15 @@ button:active {
 
 #editBtn:hover {
     background-color: #c53929;
+}
+
+/* Use prompt button styling */
+#usePromptBtn {
+    background-color: #3175e5;
+}
+
+#usePromptBtn:hover {
+    background-color: #2955a8;
 }
 
 /* IMPORTANT: Fixed output section visibility */
