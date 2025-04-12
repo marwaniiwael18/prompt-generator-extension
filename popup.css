@@ -208,8 +208,6 @@ button:active {
 
 .action-buttons button {
     flex: 1;
-    font-size: 12px;
-    padding: 8px 10px;
     position: relative;
     overflow: hidden;
 }
@@ -239,15 +237,6 @@ button:active {
     background-color: #c53929;
 }
 
-/* Use prompt button styling */
-#usePromptBtn {
-    background-color: #3175e5;
-}
-
-#usePromptBtn:hover {
-    background-color: #2955a8;
-}
-
 /* IMPORTANT: Fixed output section visibility */
 .output-section {
     opacity: 0;
@@ -258,12 +247,18 @@ button:active {
 }
 
 .output-section.visible {
-    opacity: 1;
-    transform: translateY(0);
-    max-height: 500px;
-    margin-top: 20px;
-    padding-top: 10px;
-    border-top: 1px solid #333;
+    opacity: 1 !important;
+    transform: translateY(0) !important;
+    max-height: 500px !important;
+    margin-top: 20px !important;
+    padding-top: 10px !important;
+    border-top: 1px solid #333 !important;
+    display: block !important; /* Ensure it's displayed */
+}
+
+/* Fix styling conflicts */
+.output-section[style*="display: block"] {
+    display: block !important;
 }
 
 /* Fix for the hidden class */
@@ -432,4 +427,199 @@ textarea:focus + label[for="generatedPrompt"]:after {
     100% {
         background-position: 0% 50%;
     }
+}
+/* Add these styles to your existing popup.css */
+
+/* Authentication styles */
+.auth-container {
+    padding: 15px 0;
+    animation: fadeIn 0.5s ease;
+  }
+  
+  .auth-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .auth-form h2 {
+    font-size: 18px;
+    text-align: center;
+    margin: 0 0 10px 0;
+    color: #ffffff;
+  }
+  
+  .auth-form input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    background-color: #2a2a2a;
+    color: #e0e0e0;
+    font-family: inherit;
+  }
+  
+  .auth-form input:focus {
+    border-color: #4285f4;
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.25);
+  }
+  
+  .auth-btn {
+    background: linear-gradient(135deg, #4285f4, #0f9d58);
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .auth-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #3367d6, #0b8043);
+  }
+  
+  .auth-form p {
+    text-align: center;
+    font-size: 12px;
+    margin: 8px 0;
+  }
+  
+  .auth-form a {
+    color: #4285f4;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .auth-form a:hover {
+    text-decoration: underline;
+  }
+  
+  .social-auth-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    padding: 10px;
+    border-radius: 8px;
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .social-auth-btn:hover {
+    background-color: #333;
+    transform: translateY(-2px);
+  }
+  
+  .social-auth-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .user-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    margin-bottom: 15px;
+  }
+  
+  .user-info span {
+    font-size: 13px;
+    color: #e0e0e0;
+  }
+  
+  #logoutBtn {
+    background-color: transparent;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+  }
+  
+  #logoutBtn:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  /* History section */
+  .history-section {
+    margin-top: 20px;
+    border-top: 1px solid #333;
+    padding-top: 15px;
+  }
+  
+  .history-section h3 {
+    font-size: 16px;
+    margin: 0 0 10px 0;
+    color: #e0e0e0;
+  }
+  
+  #promptHistory {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    max-height: 150px;
+    overflow-y: auto;
+  }
+  
+  #promptHistory li {
+    padding: 8px 10px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 6px;
+    margin-bottom: 8px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  #promptHistory li:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  #promptHistory li .prompt-type {
+    color: #4285f4;
+    font-weight: 500;
+    margin-right: 8px;
+  }
+  
+  #promptHistory li .prompt-date {
+    color: #888;
+    font-size: 10px;
+    float: right;
+  }
+
+/* Add these styles for loading spinner */
+@keyframes spin {
+  0% { stroke-dasharray: 1, 150; stroke-dashoffset: 0; }
+  50% { stroke-dasharray: 90, 150; stroke-dashoffset: -35; }
+  100% { stroke-dasharray: 90, 150; stroke-dashoffset: -124; }
+}
+
+.loading-spinner {
+  width: 16px;
+  height: 16px;
+  animation: spin 1.5s ease-in-out infinite;
+}
+
+.loading-spinner circle {
+  stroke-dasharray: 90, 150;
+  stroke-dashoffset: 0;
+  stroke-linecap: round;
+  animation: spin 1.5s ease-in-out infinite;
+}
+
+/* Update social auth button style to handle loading state */
+.social-auth-btn:disabled {
+  background-color: #444;
+  cursor: wait;
+  transform: none;
+  box-shadow: none;
 }

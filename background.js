@@ -36,6 +36,10 @@ chrome.runtime.onMessage.addListener(
             // Nothing specific needs to be done here; 
             // this message just indicates a context menu might be opening
             sendResponse({success: true});
+        } else if (request.action === "openPopup") {
+            // Open the extension popup programmatically
+            chrome.action.openPopup();
+            sendResponse({success: true});
         }
         return true;
     }

@@ -3,56 +3,100 @@
 <head>
   <title>AI Prompt Generator</title>
   <link rel="stylesheet" href="popup.css">
-  <!-- Meta tag to ensure proper rendering -->
   <meta name="color-scheme" content="dark">
+  <script src="error-handler.js"></script>
 </head>
 <body>
   <div class="container">
     <h1>AI Prompt Generator</h1>
     
-    <div class="input-section">
-      <label for="userInput">What do you want to ask or request?</label>
-      <textarea id="userInput" placeholder="Example: I need help with JavaScript closures"></textarea>
+    <!-- Auth Container -->
+    <div id="authContainer" class="auth-container">
+      <div id="loginForm" class="auth-form">
+        <h2>Sign In</h2>
+        <input type="email" id="loginEmail" placeholder="Email" required>
+        <input type="password" id="loginPassword" placeholder="Password" required>
+        <button id="loginBtn" class="auth-btn">Sign In</button>
+        <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
+        <button id="googleSignInBtn" class="social-auth-btn">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#DB4437">
+            <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
+          </svg>
+          Sign in with Google
+        </button>
+      </div>
       
-      <div class="options-row">
-        <div class="prompt-type">
-          <label for="promptType">Prompt Type:</label>
-          <select id="promptType">
-            <option value="question">Question</option>
-            <option value="creative">Creative Task</option>
-            <option value="coding">Code/Technical</option>
-            <option value="explanation">Explanation</option>
-            <option value="brainstorm">Brainstorming</option>
-          </select>
+      <div id="signupForm" class="auth-form hidden">
+        <h2>Sign Up</h2>
+        <input type="email" id="signupEmail" placeholder="Email" required>
+        <input type="password" id="signupPassword" placeholder="Password" required>
+        <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+        <button id="signupBtn" class="auth-btn">Create Account</button>
+        <p>Already have an account? <a href="#" id="showLogin">Sign In</a></p>
+      </div>
+    </div>
+    
+    <!-- User Info Section -->
+    <div id="userInfo" class="user-info hidden">
+      <span id="userEmail"></span>
+      <button id="logoutBtn">Logout</button>
+    </div>
+    
+    <!-- App Content (hidden until authenticated) -->
+    <div id="appContent" class="hidden">
+      <div class="input-section">
+        <label for="userInput">What do you want to ask or request?</label>
+        <textarea id="userInput" placeholder="Example: I need help with JavaScript closures"></textarea>
+        
+        <div class="options-row">
+          <div class="prompt-type">
+            <label for="promptType">Prompt Type:</label>
+            <select id="promptType">
+              <option value="question">Question</option>
+              <option value="creative">Creative Task</option>
+              <option value="coding">Code/Technical</option>
+              <option value="explanation">Explanation</option>
+              <option value="brainstorm">Brainstorming</option>
+            </select>
+          </div>
+        </div>
+        
+        <button id="generateBtn">Generate Prompt</button>
+      </div>
+      
+      <div class="output-section" style="display:none">
+        <label for="generatedPrompt">Generated Prompt:</label>
+        <textarea id="generatedPrompt" readonly></textarea>
+        
+        <div class="action-buttons">
+          <button id="copyBtn">Copy</button>
+          <button id="saveBtn">Save</button>
+          <button id="editBtn">Edit</button>
+          <button id="usePromptBtn">Use on Page</button>
         </div>
       </div>
       
-      <button id="generateBtn">Generate Prompt</button>
-    </div>
-    
-    <!-- Changed from hidden to style="display:none" for initial state -->
-    <div class="output-section" style="display:none">
-      <label for="generatedPrompt">Generated Prompt:</label>
-      <textarea id="generatedPrompt" readonly></textarea>
-      
-      <div class="action-buttons">
-        <button id="copyBtn">Copy</button>
-        <button id="saveBtn">Save</button>
-        <button id="editBtn">Edit</button>
+      <!-- Prompt History Section -->
+      <div class="history-section hidden">
+        <h3>Your Prompt History</h3>
+        <ul id="promptHistory"></ul>
       </div>
     </div>
     
-    <div class="settings">
-      <button id="settingsBtn" style="display: none;">Settings</button> <!-- Hide the settings button -->
-    </div>
-    
-    <!-- Footer Section -->
     <footer class="footer">
       <p>Developed by Wael Marwani</p>
       <p>&copy; 2025 AI Prompt Generator</p>
     </footer>
   </div>
   
+  <!-- Firebase SDK (locally stored) -->
+  <script src="lib/firebase-app-compat.js"></script>
+  <script src="lib/firebase-auth-compat.js"></script>
+  <script src="lib/firebase-firestore-compat.js"></script>
+  
+  <!-- Project scripts -->
+  <script src="firebase-config.js"></script>
+  <script src="firebase-auth.js"></script>
   <script src="popup.js"></script>
 </body>
 </html>

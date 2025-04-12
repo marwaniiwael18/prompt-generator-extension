@@ -1,0 +1,13 @@
+# Firebase SDK files (downloaded locally)
+/lib/
+
+# Node modules (if any)
+/node_modules/
+
+# IDE files
+.idea/
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

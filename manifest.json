@@ -10,19 +10,44 @@
         "storage",
         "activeTab",
         "identity",
-        "identity.email"
+        "identity.email",
+        "contextMenus",
+        "scripting"
     ],
+    "background": {
+        "service_worker": "background.js"
+    },
     "content_scripts": [
         {
-            "matches": ["<all_urls>"],
-            "js": ["content.js"]
+            "matches": [
+                "*://*.openai.com/*",
+                "*://*.claude.ai/*",
+                "*://*.bard.google.com/*",
+                "*://*.deepseek.ai/*",
+                "*://*.perplexity.ai/*",
+                "*://*.poe.com/*"
+            ],
+            "js": ["content.js"],
+            "run_at": "document_end"
         }
     ],
     "host_permissions": [
-        "<all_urls>"
+        "*://*.openai.com/*",
+        "*://*.claude.ai/*",
+        "*://*.bard.google.com/*",
+        "*://*.deepseek.ai/*",
+        "*://*.perplexity.ai/*",
+        "*://*.poe.com/*",
+        "https://www.googleapis.com/oauth2/"
     ],
     "oauth2": {
         "client_id": "906955179542-qp4ppjje6vc3shukpebig77uvft6o7gk.apps.googleusercontent.com",
-        "scopes": ["https://www.googleapis.com/auth/userinfo.email"]
+        "scopes": [
+            "https://www.googleapis.com/auth/userinfo.email",
+            "https://www.googleapis.com/auth/userinfo.profile"
+        ]
+    },
+    "content_security_policy": {
+        "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://www.googleapis.com"
     }
 }
