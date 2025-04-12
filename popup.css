@@ -1,20 +1,30 @@
+/* Animated wavy background - improved visibility */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #121212;
+    background: linear-gradient(135deg, #6a11cb, #2575fc); /* Purple and blue gradient */
+    background-size: 300% 300%;
+    animation: waveAnimation 10s ease infinite;
     color: #e0e0e0;
-    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    transition: none; /* Remove transition to avoid flickering */
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    background-color: transparent !important; /* Ensure no black overlay */
 }
 
 .container {
     width: 320px;
     padding: 15px;
-    background-color: #1e1e1e;
+    background-color: rgba(30, 30, 30, 0.9); /* Semi-transparent background */
     border-radius: 12px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4); /* Lighter shadow */
     animation: slideInFade 0.6s cubic-bezier(0.19, 1, 0.22, 1);
     overflow: hidden;
+    backdrop-filter: blur(5px); /* Slight blur effect for depth */
 }
 
 @keyframes slideInFade {
@@ -255,15 +265,17 @@ button:active {
     display: block !important;
 }
 
+/* Make the footer more transparent to see background better */
 .footer {
     margin-top: 25px;
     text-align: center;
     font-size: 12px;
     color: #b0b0b0;
-    border-top: 1px solid #333;
+    border-top: 1px solid rgba(255, 255, 255, 0.1); /* More subtle border */
     padding-top: 12px;
     position: relative;
     overflow: hidden;
+    background-color: transparent; /* Ensure no background color */
 }
 
 .footer:before {
@@ -383,4 +395,30 @@ label[for="userInput"]:after, label[for="generatedPrompt"]:after {
 textarea:focus + label[for="userInput"]:after, 
 textarea:focus + label[for="generatedPrompt"]:after {
     width: 100%;
+}
+
+/* Gradient wave animation */
+@keyframes gradientWave {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
+}
+
+/* Wavy animation for the background */
+@keyframes waveAnimation {
+    0% {
+        background-position: 0% 50%;
+    }
+    50% {
+        background-position: 100% 50%;
+    }
+    100% {
+        background-position: 0% 50%;
+    }
 }
