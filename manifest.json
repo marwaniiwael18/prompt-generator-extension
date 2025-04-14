@@ -38,7 +38,8 @@
         "*://*.deepseek.ai/*",
         "*://*.perplexity.ai/*",
         "*://*.poe.com/*",
-        "https://www.googleapis.com/oauth2/"
+        "https://www.googleapis.com/oauth2/",
+        "https://generativelanguage.googleapis.com/"
     ],
     "oauth2": {
         "client_id": "906955179542-qp4ppjje6vc3shukpebig77uvft6o7gk.apps.googleusercontent.com",
@@ -48,6 +49,12 @@
         ]
     },
     "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://www.googleapis.com"
-    }
+        "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firebase.googleapis.com"
+    },
+    "web_accessible_resources": [
+        {
+            "resources": ["lib/*.js"],
+            "matches": ["<all_urls>"]
+        }
+    ]
 }

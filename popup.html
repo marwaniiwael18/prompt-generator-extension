@@ -7,8 +7,12 @@
   <script src="error-handler.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h1>AI Prompt Generator</h1>
+  <!-- Sidebar for authentication -->
+  <div id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+      <h3>Account</h3>
+      <button id="closeSidebar" class="close-btn">&times;</button>
+    </div>
     
     <!-- Auth Container -->
     <div id="authContainer" class="auth-container">
@@ -34,16 +38,48 @@
         <button id="signupBtn" class="auth-btn">Create Account</button>
         <p>Already have an account? <a href="#" id="showLogin">Sign In</a></p>
       </div>
+      
+      <!-- User Info Section (shown when logged in) -->
+      <div id="userInfo" class="user-info hidden">
+        <div class="user-profile">
+          <span id="userEmail"></span>
+          <p class="status-text">Logged in</p>
+        </div>
+        <div class="user-actions">
+          <button id="logoutBtn">Logout</button>
+        </div>
+      </div>
+      
+      <div class="guest-info">
+        <p>Currently using as a guest</p>
+        <p class="small-text">Sign in to save your prompts and use unlimited generations</p>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Overlay for sidebar -->
+  <div id="overlay" class="overlay"></div>
+  
+  <div class="container">
+    <!-- Header with menu button -->
+    <div class="header">
+      <button id="menuBtn" class="menu-btn">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <rect y="0" width="18" height="2" rx="1"/>
+          <rect y="5" width="18" height="2" rx="1"/>
+          <rect y="10" width="18" height="2" rx="1"/>
+        </svg>
+      </button>
+      <h1>AI Prompt Generator</h1>
     </div>
     
-    <!-- User Info Section -->
-    <div id="userInfo" class="user-info hidden">
-      <span id="userEmail"></span>
-      <button id="logoutBtn">Logout</button>
+    <!-- Guest limit counter -->
+    <div id="guestLimitContainer" class="guest-limit-container">
+      <div id="guestLimitCounter" class="guest-limit-counter">0/6 prompts used</div>
     </div>
     
-    <!-- App Content (hidden until authenticated) -->
-    <div id="appContent" class="hidden">
+    <!-- Always visible app content -->
+    <div id="appContent">
       <div class="input-section">
         <label for="userInput">What do you want to ask or request?</label>
         <textarea id="userInput" placeholder="Example: I need help with JavaScript closures"></textarea>
@@ -61,6 +97,11 @@
           </div>
         </div>
         
+        <!-- Guest limit message -->
+        <div id="guestLimitMessage" class="guest-limit-message hidden">
+          <p>You've reached the free usage limit. <button id="loginFromMessage" class="inline-button">Sign in</button> to continue.</p>
+        </div>
+        
         <button id="generateBtn">Generate Prompt</button>
       </div>
       
@@ -70,13 +111,13 @@
         
         <div class="action-buttons">
           <button id="copyBtn">Copy</button>
-          <button id="saveBtn">Save</button>
+          <button id="saveBtn" class="save-btn">Save</button>
           <button id="editBtn">Edit</button>
           <button id="usePromptBtn">Use on Page</button>
         </div>
       </div>
       
-      <!-- Prompt History Section -->
+      <!-- Prompt History Section - Only visible when logged in -->
       <div class="history-section hidden">
         <h3>Your Prompt History</h3>
         <ul id="promptHistory"></ul>
@@ -96,7 +137,12 @@
   
   <!-- Project scripts -->
   <script src="firebase-config.js"></script>
+  <script src="error-handler.js"></script>
+  <script src="firebase-auth-helper.js"></script>
+  <script src="firestore-data-structure.js"></script>
   <script src="firebase-auth.js"></script>
   <script src="popup.js"></script>
+  <script src="login-handler.js"></script>
+  <script src="logout-handler.js"></script>
 </body>
 </html>

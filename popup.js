@@ -37,21 +37,128 @@ document.addEventListener('DOMContentLoaded', function() {
     const editBtn = document.getElementById('editBtn');
     const usePromptBtn = document.getElementById('usePromptBtn');
     const outputSection = document.querySelector('.output-section');
+    const sidebar = document.getElementById('sidebar');
     
-    // Track current user
-    let currentUser = null;
+    // Track current user and guest mode
+    window.isGuestMode = true; // Default to guest mode
+    window.currentUser = null;
+    
+    // Guest usage tracking constants
+    const GUEST_PROMPT_LIMIT = 6;
+    const GUEST_COUNT_KEY = 'guestPromptCount';
+    let guestPromptCount = 0;
+    
+    // Load guest usage count from storage
+    chrome.storage.local.get([GUEST_COUNT_KEY], function(result) {
+      guestPromptCount = result[GUEST_COUNT_KEY] || 0;
+      updateGuestLimitDisplay();
+    });
+    
+    // Function to update guest limit display
+    function updateGuestLimitDisplay() {
+      const guestLimitElement = document.getElementById('guestLimitCounter');
+      if (guestLimitElement) {
+        if (window.isGuestMode) {
+          guestLimitElement.textContent = `${guestPromptCount}/${GUEST_PROMPT_LIMIT} prompts used`;
+          
+          if (guestPromptCount >= GUEST_PROMPT_LIMIT) {
+            guestLimitElement.classList.add('limit-reached');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Limit Reached - Please Sign In';
+            // Show guest limit message
+            document.getElementById('guestLimitMessage').classList.remove('hidden');
+            
+            // Ensure the login button in the message is properly set up
+            const loginFromMessage = document.getElementById('loginFromMessage');
+            if (loginFromMessage) {
+              loginFromMessage.onclick = function() {
+                sidebar.classList.add('open');
+                document.getElementById('overlay').classList.add('active');
+                // Focus on the login email field
+                setTimeout(() => document.getElementById('loginEmail').focus(), 300);
+              };
+            }
+          } else {
+            guestLimitElement.classList.remove('limit-reached');
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate Prompt';
+            // Hide guest limit message
+            document.getElementById('guestLimitMessage').classList.add('hidden');
+          }
+          
+          document.getElementById('guestLimitContainer').classList.remove('hidden');
+        } else {
+          // User is logged in - reset UI elements
+          document.getElementById('guestLimitContainer').classList.add('hidden');
+          document.getElementById('guestLimitMessage').classList.add('hidden');
+          generateBtn.disabled = false;
+          generateBtn.textContent = 'Generate Prompt';
+        }
+      }
+    }
     
     // Listen for auth state changes
     auth.onAuthStateChanged(user => {
-      currentUser = user;
-      console.log("Auth state changed in popup.js, current user:", user ? user.email : "none");
+      window.currentUser = user;
+      window.isGuestMode = !user;
+      console.log("Auth state changed in popup.js, guest mode:", window.isGuestMode);
+      
+      if (!window.isGuestMode) {
+        // User just logged in - reset the guest count
+        resetGuestPromptCount();
+      }
+      
+      // Update guest limit display when auth state changes
+      updateGuestLimitDisplay();
+      
+      // Update save button state
+      updateSaveButtonState();
+      
+      // Enable generate button if user is logged in
+      if (!window.isGuestMode) {
+        generateBtn.disabled = false;
+        generateBtn.textContent = 'Generate Prompt';
+        // Hide guest limit message
+        document.getElementById('guestLimitMessage').classList.add('hidden');
+      }
     });
+    
+    function updateSaveButtonState() {
+      if (window.isGuestMode) {
+        saveBtn.setAttribute('data-guest', 'true');
+        saveBtn.addEventListener('click', promptLogin);
+      } else {
+        saveBtn.removeAttribute('data-guest');
+        saveBtn.removeEventListener('click', promptLogin);
+        saveBtn.addEventListener('click', handleSavePrompt);
+      }
+    }
+    
+    function promptLogin() {
+      // Open sidebar when login is needed
+      sidebar.classList.add('open');
+      document.getElementById('overlay').classList.add('active');
+      
+      // Focus on the email input field for better UX
+      setTimeout(() => {
+        const loginEmail = document.getElementById('loginEmail');
+        if (loginEmail) loginEmail.focus();
+      }, 300);
+      
+      alert('Please sign in to save prompts');
+    }
   
     // Generate prompt functionality
     generateBtn.addEventListener('click', async function() {
       const input = userInput.value.trim();
       if (!input) {
         alert('Please enter what you want to ask or request.');
+        return;
+      }
+      
+      // Only check guest limit if in guest mode
+      if (window.isGuestMode && guestPromptCount >= GUEST_PROMPT_LIMIT) {
+        promptLogin();
         return;
       }
   
@@ -75,9 +182,26 @@ document.addEventListener('DOMContentLoaded', function() {
         
         console.log('Output section should be visible now:', outputSection);
         
+        // Only increment guest usage count if in guest mode
+        if (window.isGuestMode) {
+          guestPromptCount++;
+          chrome.storage.local.set({ [GUEST_COUNT_KEY]: guestPromptCount }, function() {
+            console.log('Guest prompt count updated to:', guestPromptCount);
+            updateGuestLimitDisplay();
+          });
+        }
+        
         // ENHANCEMENT: Auto-save the generated prompt if user is logged in
         if (currentUser) {
           savePromptToFirebase(optimizedPrompt, promptType.value);
+        }
+
+        // Track prompt generation for analytics
+        if (window.firestoreData && window.firestoreData.trackPromptGeneration) {
+          const userId = window.isGuestMode ? null : currentUser.uid;
+          window.firestoreData.trackPromptGeneration(userId, {
+            type: promptType.value
+          }).catch(err => console.log('Error tracking prompt generation:', err));
         }
       } catch (error) {
         alert('Error generating prompt: ' + error.message);
@@ -85,8 +209,27 @@ document.addEventListener('DOMContentLoaded', function() {
       } finally {
         generateBtn.textContent = 'Generate Prompt';
         generateBtn.disabled = false;
+        
+        // Re-check the limit only if in guest mode
+        if (window.isGuestMode && guestPromptCount >= GUEST_PROMPT_LIMIT) {
+          generateBtn.disabled = true;
+          generateBtn.textContent = 'Limit Reached - Please Sign In';
+        }
       }
     });
+    
+    // Reset guest prompt count when signing in
+    function resetGuestPromptCount() {
+      guestPromptCount = 0;
+      chrome.storage.local.set({ [GUEST_COUNT_KEY]: 0 }, function() {
+        console.log('Guest prompt count reset');
+        // Update UI after resetting count
+        updateGuestLimitDisplay();
+      });
+    }
+  
+    // Make resetGuestPromptCount available globally
+    window.resetGuestPromptCount = resetGuestPromptCount;
   
     // Copy button functionality
     copyBtn.addEventListener('click', function() {
@@ -135,7 +278,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     });
   
-    // Save button functionality - FIXED to properly handle Firebase timestamps
+    // Save button functionality - Updated to use firestore-data-structure.js
     saveBtn.addEventListener('click', function() {
       const promptToSave = generatedPrompt.value.trim();
       if (!promptToSave) {
@@ -151,12 +294,59 @@ document.addEventListener('DOMContentLoaded', function() {
       savePromptToFirebase(promptToSave, promptType.value);
     });
     
-    // Helper function to save prompt to Firebase
+    // Helper function to save prompt to Firebase - Updated to use the new structure
     function savePromptToFirebase(promptContent, promptType) {
       console.log("Attempting to save prompt to Firebase for user:", currentUser.uid);
-      console.log("Prompt content:", promptContent.substring(0, 50) + "...");
-      console.log("Prompt type:", promptType);
       
+      // Create the discussion data object
+      const discussionData = {
+        type: promptType,
+        content: promptContent,
+        userInput: userInput.value.trim(),
+        source: 'extension'
+      };
+      
+      // First try to use our new firestore-data-structure.js
+      if (window.firestoreData && window.firestoreData.saveDiscussion) {
+        window.firestoreData.saveDiscussion(currentUser.uid, discussionData)
+          .then(id => {
+            if (id) {
+              console.log("Prompt saved successfully with ID:", id);
+              // Visual feedback
+              const originalText = saveBtn.textContent;
+              saveBtn.textContent = 'Saved!';
+              setTimeout(() => {
+                saveBtn.textContent = originalText;
+              }, 1500);
+              
+              // Track usage statistics
+              if (window.firestoreData.trackPromptGeneration) {
+                window.firestoreData.trackPromptGeneration(currentUser.uid, {
+                  type: promptType
+                });
+              }
+              
+              // Reload the prompt history
+              if (window.loadUserPrompts) {
+                window.loadUserPrompts(currentUser.uid);
+              }
+            } else {
+              throw new Error("Failed to get discussion ID");
+            }
+          })
+          .catch(error => {
+            console.error('Error saving prompt using new structure:', error);
+            // Fall back to old method
+            saveLegacyPrompt(promptContent, promptType);
+          });
+      } else {
+        // Fall back to the old method if new structure not available
+        saveLegacyPrompt(promptContent, promptType);
+      }
+    }
+    
+    // Legacy save function for backward compatibility
+    function saveLegacyPrompt(promptContent, promptType) {
       let timestamp;
       try {
         // Create timestamp based on what's available
@@ -220,7 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Your API call function
     async function callGoogleAI(input, type) {
-      const apiKey = 'AIzaSyCW6cXEBtj-SukSB2nmb6rh5qoTE0Qylz4'; // Replace with your actual API key
+      const apiKey = 'AIzaSyCW6cXEBtj-SukSB2nmb6rh5qoTE0Qylz4';
       
       // Create a more structured prompt template based on the example
       const userPrompt = `Transform this input into a professional, well-structured ${type} prompt for AI assistants:
@@ -243,7 +433,11 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         console.log('Calling API with prompt:', userPrompt);
         
-        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`, {
+        // Use a more specific URL format that might work better with the CSP
+        const apiUrl = new URL('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent');
+        apiUrl.searchParams.append('key', apiKey);
+        
+        const response = await fetch(apiUrl.toString(), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -365,4 +559,8 @@ document.addEventListener('DOMContentLoaded', function() {
         outputSection.classList.add('visible');
       }, 10);
     }
+
+    // Initialize states
+    updateSaveButtonState();
+    updateGuestLimitDisplay();
   });

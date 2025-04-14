@@ -17,7 +17,7 @@ html, body {
 }
 
 .container {
-    width: 320px;
+    width: 340px;
     padding: 15px;
     background-color: rgba(30, 30, 30, 0.9); /* Semi-transparent background */
     border-radius: 12px;
@@ -67,13 +67,15 @@ h1:after {
 }
 
 .input-section, .output-section {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
 }
 
 label {
     display: block;
-    margin-bottom: 5px;
+    margin-bottom: 8px;
     font-weight: 500;
     color: #b0b0b0;
     transition: color 0.3s;
@@ -82,7 +84,7 @@ label {
 textarea {
     width: 100%;
     padding: 10px;
-    border: 1px solid #333;
+    border: 1px solid #444;
     border-radius: 8px;
     resize: vertical;
     font-family: inherit;
@@ -91,6 +93,9 @@ textarea {
     color: #e0e0e0;
     transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+    min-height: 80px;
+    font-size: 14px;
+    line-height: 1.5;
 }
 
 textarea:focus {
@@ -152,6 +157,10 @@ button {
     transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
     position: relative;
     overflow: hidden;
+    white-space: nowrap; /* Prevent button text from wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Show ellipsis for overflowing text */
+    min-height: 36px; /* Ensure minimum height for all buttons */
 }
 
 button:after {
@@ -440,6 +449,14 @@ textarea:focus + label[for="generatedPrompt"]:after {
     display: flex;
     flex-direction: column;
     gap: 12px;
+    transform-origin: top center;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  
+  .auth-form.hidden {
+    transform: translateY(-10px) scale(0.98);
+    opacity: 0;
+    display: none !important;
   }
   
   .auth-form h2 {
@@ -525,15 +542,14 @@ textarea:focus + label[for="generatedPrompt"]:after {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 12px;
+    padding: 12px;
     background-color: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     margin-bottom: 15px;
   }
   
-  .user-info span {
-    font-size: 13px;
-    color: #e0e0e0;
+  .user-actions {
+    display: flex;
   }
   
   #logoutBtn {
@@ -543,10 +559,22 @@ textarea:focus + label[for="generatedPrompt"]:after {
     padding: 5px 10px;
     border-radius: 6px;
     font-size: 12px;
+    transition: all 0.2s ease;
   }
   
   #logoutBtn:hover {
     background-color: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  
+  .user-profile {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .user-profile span {
+    font-weight: 500;
+    color: #e0e0e0;
   }
   
   /* History section */
@@ -622,4 +650,336 @@ textarea:focus + label[for="generatedPrompt"]:after {
   cursor: wait;
   transform: none;
   box-shadow: none;
+}
+
+/* Add styles for the Firebase Console button and user actions */
+.user-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.dashboard-btn {
+  display: none;
+}
+
+.dashboard-btn {
+  background-color: #ffa000;
+  color: #fff;
+  border: 1px solid #ff8f00;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.dashboard-btn:hover {
+  background-color: #ff8f00;
+}
+
+.user-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
+
+/* Sidebar and menu button styles */
+.sidebar {
+  position: fixed;
+  left: -270px; /* Move it further left for better animation */
+  top: 0;
+  width: 250px;
+  height: 100%;
+  background-color: #1e1e1e;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transition: left 0.3s cubic-bezier(0.25, 1, 0.5, 1); /* Improved easing */
+  padding: 15px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.sidebar.open {
+  left: 0;
+}
+
+.sidebar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.sidebar-header h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  color: #b0b0b0;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 8px;
+  line-height: 1;
+}
+
+.close-btn:hover {
+  color: #ffffff;
+  background: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  cursor: pointer;
+  padding: 5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.menu-btn:hover {
+  background-color: rgba(255,255,255,0.1);
+  transform: none;
+  box-shadow: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  padding: 5px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.1); /* Add subtle border */
+}
+
+.header h1 {
+  margin: 0 0 0 10px;
+  flex: 1;
+  font-size: 20px;
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.overlay.active {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Guest mode styles */
+.guest-info {
+  background-color: rgba(255,255,255,0.05);
+  padding: 12px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: center;
+  display: block; /* Ensure it's displayed as a block */
+}
+
+.guest-info p {
+  margin: 5px 0;
+  color: #b0b0b0;
+  text-align: center; /* Center text */
+  line-height: 1.4;
+}
+
+.guest-info .small-text {
+  font-size: 12px;
+  margin-top: 5px;
+  color: #888;
+}
+
+.user-profile {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.status-text {
+  font-size: 12px;
+  color: #4caf50;
+  margin: 5px 0 0 0;
+}
+
+/* Save button with login prompt */
+.save-btn {
+  position: relative;
+}
+
+.save-btn[data-guest="true"]:hover::before {
+  content: "Login to save";
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: white;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.save-btn[data-guest="true"]:hover::after {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 5px;
+  border-style: solid;
+  border-color: #333 transparent transparent transparent;
+}
+
+/* Add guest limit counter styles */
+.guest-limit-container {
+  margin-bottom: 10px;
+  text-align: right;
+  padding: 0 5px;
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.guest-limit-container:hover {
+  opacity: 1;
+}
+
+.guest-limit-counter {
+  font-size: 12px;
+  color: #b0b0b0;
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: all 0.3s ease;
+}
+
+.guest-limit-counter.limit-reached {
+  color: #ff6b6b;
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+.guest-limit-message {
+  background-color: rgba(255, 107, 107, 0.1);
+  border-left: 3px solid #ff6b6b;
+  padding: 10px;
+  margin: 10px 0;
+  font-size: 14px;
+  color: #ff6b6b;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.guest-limit-message p {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inline-button {
+  background: none;
+  border: 1px solid #ff6b6b;
+  color: #ff6b6b;
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-left: auto; /* Push button to the right */
+}
+
+.inline-button:hover {
+  background-color: #ff6b6b;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 3px 8px rgba(255, 107, 107, 0.3);
+}
+
+.inline-button:active {
+  transform: translateY(0);
+}
+
+/* Add highlight animation for the login form */
+@keyframes highlightForm {
+  0% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(66, 133, 244, 0.4); }
+  100% { box-shadow: 0 0 0 0 rgba(66, 133, 244, 0); }
+}
+
+.highlight-animation {
+  animation: highlightForm 1.5s ease;
+}
+
+/* Disabled generate button when limit reached */
+#generateBtn:disabled {
+  background: linear-gradient(135deg, #888, #666);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.8;
+}
+
+/* Enhanced auth error display */
+.auth-error {
+  color: #ff6b6b;
+  font-size: 12px;
+  text-align: center;
+  padding: 8px;
+  margin: 8px 0;
+  background-color: rgba(255, 107, 107, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid #ff6b6b;
+  animation: fadeIn 0.3s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Add floating error container for global errors */
+.floating-error {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333;
+  color: #ff6b6b;
+  padding: 10px 15px;
+  border-radius: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 9999;
+  max-width: 90%;
+  animation: slideDown 0.3s ease;
+}
+
+@keyframes slideDown {
+  from { transform: translate(-50%, -20px); opacity: 0; }
+  to { transform: translate(-50%, 0); opacity: 1; }
 }

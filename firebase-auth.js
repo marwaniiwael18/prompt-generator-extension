@@ -34,10 +34,33 @@ document.addEventListener('DOMContentLoaded', function() {
     const logoutBtn = document.getElementById('logoutBtn');
     const userInfo = document.getElementById('userInfo');
     const userEmail = document.getElementById('userEmail');
-    const appContent = document.getElementById('appContent');
-    const promptHistory = document.getElementById('promptHistory');
     const historySection = document.querySelector('.history-section');
-  
+    const guestInfo = document.querySelector('.guest-info');
+    const promptHistory = document.getElementById('promptHistory');
+    const saveBtn = document.getElementById('saveBtn');
+    
+    // Sidebar elements
+    const menuBtn = document.getElementById('menuBtn');
+    const sidebar = document.getElementById('sidebar');
+    const closeSidebar = document.getElementById('closeSidebar');
+    const overlay = document.getElementById('overlay');
+    
+    // Toggle sidebar
+    menuBtn.addEventListener('click', function() {
+      sidebar.classList.add('open');
+      overlay.classList.add('active');
+    });
+    
+    closeSidebar.addEventListener('click', function() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    });
+    
+    overlay.addEventListener('click', function() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('active');
+    });
+
     // Toggle between login and signup forms
     showSignup.addEventListener('click', function(e) {
       e.preventDefault();
@@ -51,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
       loginForm.classList.remove('hidden');
     });
   
-    // Email/Password Login
+    // Email/Password Login - Fixed for proper validation
     loginBtn.addEventListener('click', function() {
       const email = document.getElementById('loginEmail').value;
       const password = document.getElementById('loginPassword').value;
@@ -68,17 +91,45 @@ document.addEventListener('DOMContentLoaded', function() {
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
           console.log('User logged in:', userCredential.user);
-          // Auth state change listener will handle UI update
+          // Reset guest prompt count on successful login
+          if (window.resetGuestPromptCount) {
+            window.resetGuestPromptCount();
+          }
+          
+          // Close the sidebar after successful login
+          sidebar.classList.remove('open');
+          overlay.classList.remove('active');
         })
         .catch(error => {
           console.error('Login error:', error);
-          showAuthError(getAuthErrorMessage(error.code));
-          loginBtn.textContent = 'Sign In';
-          loginBtn.disabled = false;
+          
+          // Use our global error handler with all required DOM elements
+          if (window.handleAuthError) {
+            window.handleAuthError(error, {
+              loginBtn,
+              signupBtn,
+              showLogin,
+              showSignup,
+              loginForm,
+              signupForm
+            });
+          } else {
+            // Fallback to old error handling
+            if (error.code === 'auth/user-not-found') {
+              showSignup.click();
+              document.getElementById('signupEmail').value = email;
+              showAuthError('Account not found. Please sign up instead.');
+            } else {
+              showAuthError(getAuthErrorMessage(error.code));
+            }
+            
+            loginBtn.textContent = 'Sign In';
+            loginBtn.disabled = false;
+          }
         });
     });
   
-    // Email/Password Signup
+    // Email/Password Signup - Updated for better error handling
     signupBtn.addEventListener('click', function() {
       const email = document.getElementById('signupEmail').value;
       const password = document.getElementById('signupPassword').value;
@@ -103,19 +154,51 @@ document.addEventListener('DOMContentLoaded', function() {
       signupBtn.textContent = 'Creating account...';
       signupBtn.disabled = true;
       
+      // Directly try to create the account - Firebase will handle existing email errors
       auth.createUserWithEmailAndPassword(email, password)
         .then(userCredential => {
+          // Account created successfully
           console.log('User signed up:', userCredential.user);
-          // Auth state change listener will handle UI update
+          
+          // Initialize profile in Firestore
+          if (window.firestoreData && window.firestoreData.saveUserProfile) {
+            return window.firestoreData.saveUserProfile(userCredential.user.uid, {
+              email: email,
+              displayName: email.split('@')[0], // Simple display name from email
+              createdAt: new Date().getTime() // Use timestamp for more consistent storage
+            });
+          }
+          return userCredential;
         })
         .catch(error => {
           console.error('Signup error:', error);
-          showAuthError(getAuthErrorMessage(error.code));
-          signupBtn.textContent = 'Create Account';
-          signupBtn.disabled = false;
+          
+          // Use our global error handler
+          if (window.handleAuthError) {
+            window.handleAuthError(error, {
+              loginBtn,
+              signupBtn,
+              showLogin,
+              showSignup,
+              loginForm,
+              signupForm
+            });
+          } else {
+            // Fallback to old error handling
+            if (error.code === 'auth/email-already-in-use') {
+              showLogin.click();
+              document.getElementById('loginEmail').value = email;
+              showAuthError('This email is already registered. Please sign in instead.');
+            } else {
+              showAuthError(getAuthErrorMessage(error.code));
+            }
+            
+            signupBtn.textContent = 'Create Account';
+            signupBtn.disabled = false;
+          }
         });
     });
-  
+
     // Update the Google Sign In function to use Chrome Identity API if available
     googleSignInBtn.addEventListener('click', function() {
       try {
@@ -139,6 +222,13 @@ document.addEventListener('DOMContentLoaded', function() {
         auth.signInWithPopup(provider)
           .then(result => {
             console.log('Google sign in successful:', result.user);
+            // Reset guest prompt count on successful login
+            if (window.resetGuestPromptCount) {
+              window.resetGuestPromptCount();
+            }
+            // Close the sidebar after successful login
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
             // Auth state change listener will handle UI update
           })
           .catch(error => {
@@ -173,15 +263,24 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
   
-    // Auth state change listener
+    // Auth state change listener - updated for guest mode
     auth.onAuthStateChanged(user => {
       if (user) {
         // User is signed in
         console.log('Auth state changed: User is signed in', user);
-        authContainer.classList.add('hidden');
+        
+        // Display user ID in console for easy access
+        console.log('User ID for Firebase access:', user.uid);
+        
+        // Update UI for logged-in state
+        loginForm.classList.add('hidden');
+        signupForm.classList.add('hidden');
         userInfo.classList.remove('hidden');
-        appContent.classList.remove('hidden');
         historySection.classList.remove('hidden');
+        guestInfo.classList.add('hidden');
+        
+        // Update save button
+        saveBtn.removeAttribute('data-guest');
         
         userEmail.textContent = user.email;
         
@@ -191,15 +290,30 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Load user's prompt history
         loadUserPrompts(user.uid);
+        
+        // Set user state for popup.js
+        window.isGuestMode = false;
+        window.currentUser = user;
+        
+        // Make sure the generate button is enabled for logged-in users
+        const generateBtn = document.getElementById('generateBtn');
+        if (generateBtn) {
+          generateBtn.disabled = false;
+          generateBtn.textContent = 'Generate Prompt';
+        }
       } else {
-        // User is signed out
-        console.log('Auth state changed: User is signed out');
-        authContainer.classList.remove('hidden');
+        // User is signed out - Guest Mode
+        console.log('Auth state changed: User is signed out (Guest Mode)');
+        
+        // Update UI for guest mode
         loginForm.classList.remove('hidden');
         signupForm.classList.add('hidden');
         userInfo.classList.add('hidden');
-        appContent.classList.add('hidden');
         historySection.classList.add('hidden');
+        guestInfo.classList.remove('hidden');
+        
+        // Update save button to show login prompt
+        saveBtn.setAttribute('data-guest', 'true');
         
         // Reset signup form
         document.getElementById('signupEmail').value = '';
@@ -213,6 +327,10 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset signup button
         signupBtn.textContent = 'Create Account';
         signupBtn.disabled = false;
+        
+        // Set guest mode for popup.js
+        window.isGuestMode = true;
+        window.currentUser = null;
       }
     });
   
@@ -249,7 +367,7 @@ document.addEventListener('DOMContentLoaded', function() {
         case 'auth/wrong-password':
           return 'Incorrect password. Please try again.';
         case 'auth/user-not-found':
-          return 'No account found with this email.';
+          return 'No account found with this email. Please sign up.';
         case 'auth/email-already-in-use':
           return 'Email already in use. Try logging in instead.';
         case 'auth/invalid-email':
