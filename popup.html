@@ -2,11 +2,11 @@
 <html>
 <head>
   <title>AI Prompt Generator</title>
-  <link rel="stylesheet" href="popup.css">
+  <link rel="stylesheet" href="src/css/popup.css">
   <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=380, initial-scale=1.0, maximum-scale=1.0">
   <meta charset="UTF-8"> <!-- Added charset for proper emoji rendering -->
-  <script src="error-handler.js"></script>
+  <script src="src/js/utils/error-handler.js"></script>
 </head>
 <body>
   <!-- Sidebar for authentication -->
@@ -205,12 +205,12 @@
   <script src="lib/firebase-firestore-compat.js"></script>
   
   <!-- Project scripts -->
-  <script src="firebase-config.js"></script>
-  <script src="error-handler.js"></script>
-  <script src="firestore-data-structure.js"></script>
-  <script src="firebase-auth.js"></script>
-  <script src="popup.js"></script>
-  <script src="login-handler.js"></script>
-  <script src="logout-handler.js"></script>
+  <script src="src/js/firebase/firebase-config.js"></script>
+  <script src="src/js/utils/error-handler.js"></script>
+  <script src="src/js/firebase/firestore-data-structure.js"></script>
+  <script src="src/js/auth/firebase-auth.js"></script>
+  <script src="src/js/popup/popup.js"></script>
+  <script src="src/js/auth/login-handler.js"></script>
+  <script src="src/js/auth/logout-handler.js"></script>
 </body>
 </html>

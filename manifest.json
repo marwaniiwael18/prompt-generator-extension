@@ -9,10 +9,11 @@
     "permissions": [
         "storage",
         "activeTab",
-        "identity"
+        "identity",
+        "contextMenus"
     ],
     "background": {
-        "service_worker": "background.js"
+        "service_worker": "src/js/background/background.js"
     },
     "content_scripts": [
         {
@@ -24,7 +25,7 @@
                 "*://*.perplexity.ai/*",
                 "*://*.poe.com/*"
             ],
-            "js": ["content.js"],
+            "js": ["src/js/content/content.js"],
             "run_at": "document_end"
         }
     ],
