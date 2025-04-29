@@ -102,6 +102,25 @@ document.addEventListener('DOMContentLoaded', function() {
       window.currentUser = user;
       window.isGuestMode = !user;
       console.log("Auth state changed in popup.js, guest mode:", window.isGuestMode);
+
+      // Show/hide userInfo section based on login state
+      const userInfo = document.getElementById('userInfo');
+      if (userInfo) {
+        if (user) {
+          userInfo.classList.remove('hidden');
+        } else {
+          userInfo.classList.add('hidden');
+        }
+      }
+      // Show/hide logout icon button in header
+      const popupLogoutBtn = document.getElementById('popupLogoutBtn');
+      if (popupLogoutBtn) {
+        if (user) {
+          popupLogoutBtn.classList.remove('hidden');
+        } else {
+          popupLogoutBtn.classList.add('hidden');
+        }
+      }
       
       if (!window.isGuestMode) {
         // User just logged in - reset the guest count
@@ -127,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
       if (window.isGuestMode) {
         saveBtn.setAttribute('data-guest', 'true');
         saveBtn.addEventListener('click', promptLogin);
+        saveBtn.removeEventListener('click', handleSavePrompt);
       } else {
         saveBtn.removeAttribute('data-guest');
         saveBtn.removeEventListener('click', promptLogin);
@@ -146,6 +166,22 @@ document.addEventListener('DOMContentLoaded', function() {
       }, 300);
       
       alert('Please sign in to save prompts');
+    }
+    
+    // Define the missing handleSavePrompt function
+    function handleSavePrompt() {
+      const promptToSave = generatedPrompt.value.trim();
+      if (!promptToSave) {
+        alert('No prompt to save');
+        return;
+      }
+      
+      if (!currentUser) {
+        alert('Please sign in to save prompts');
+        return;
+      }
+      
+      savePromptToFirebase(promptToSave, promptType.value);
     }
   
     // Generate prompt functionality
@@ -558,6 +594,25 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => {
         outputSection.classList.add('visible');
       }, 10);
+    }
+
+    // Initialize click handler for popup logout button
+    const popupLogoutBtn = document.getElementById('popupLogoutBtn');
+    if (popupLogoutBtn) {
+      popupLogoutBtn.addEventListener('click', function() {
+        // Call Firebase signOut
+        if (window.auth) {
+          window.auth.signOut()
+            .then(() => {
+              console.log('User signed out from header button');
+              // Auth state change listener will handle UI update
+            })
+            .catch(error => {
+              console.error('Sign out error:', error);
+              alert('Error signing out. Please try again.');
+            });
+        }
+      });
     }
 
     // Initialize states

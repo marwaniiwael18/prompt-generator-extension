@@ -9,10 +9,7 @@
     "permissions": [
         "storage",
         "activeTab",
-        "identity",
-        "identity.email",
-        "contextMenus",
-        "scripting"
+        "identity"
     ],
     "background": {
         "service_worker": "background.js"
@@ -38,8 +35,12 @@
         "*://*.deepseek.ai/*",
         "*://*.perplexity.ai/*",
         "*://*.poe.com/*",
-        "https://www.googleapis.com/oauth2/",
-        "https://generativelanguage.googleapis.com/"
+        "https://*.googleapis.com/*",
+        "https://apis.google.com/*",
+        "https://*.firebaseio.com/*",
+        "https://securetoken.googleapis.com/*",
+        "https://identitytoolkit.googleapis.com/*",
+        "https://accounts.google.com/*"
     ],
     "oauth2": {
         "client_id": "906955179542-qp4ppjje6vc3shukpebig77uvft6o7gk.apps.googleusercontent.com",
@@ -49,12 +50,13 @@
         ]
     },
     "content_security_policy": {
-        "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firebase.googleapis.com"
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firebase.googleapis.com https://*.cloudfunctions.net https://*.gstatic.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://*.firebaseapp.com https://accounts.google.com https://www.googleapis.com https://apis.google.com"
     },
     "web_accessible_resources": [
         {
             "resources": ["lib/*.js"],
             "matches": ["<all_urls>"]
         }
-    ]
+    ],
+    "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyUeR5QWpOsgNzVmqr3dLPCs6nYN+L3i3mMgTiHUhwZfAGrD+hD8Gt2yP6fEz1ARaYmihZnPKVeB3n1K1j8VnHJcoEsVI8GZCkhGDJjJ5RqrrbE+1ZhmKYv73pDAHF2VGIUgA5PrA0WfBUZ3qwXG5qEscykYPvUHl1GxbfhX4ULvQK1NSj3jbut+YRJ1hQ60mP2TF7P3HO2YQjYrxVPaPvPer9ZlFyyJ9USuFLZoI+deCPTcts92HsrE8xU0HsAlIKyOJHQDsZ4+s9Y+I29bVKgIqhh4pL7yGAMpDOMkFB4p6+nLYQlQxXKq+2QiPcJfyR9oTRVgvk3r9qhHF4Fu9vw=="
 }

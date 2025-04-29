@@ -95,28 +95,47 @@ async function updateUserPreferences(userId, preferences) {
 
 // Save a discussion (prompt and response)
 async function saveDiscussion(userId, discussionData) {
-  if (!discussionsCollection) initCollections();
+  if (!usersCollection) initCollections();
+  let discussionId = null;
   
   try {
-    // Add to general discussions collection with user reference
-    const discussionRef = await discussionsCollection.add({
-      userId: userId,
-      ...discussionData,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-    
-    // Also add reference to user's personal prompts collection
-    await usersCollection
+    // First try to add directly to the user's prompts collection
+    // This will bypass the issue with discussions collection permissions
+    const userPromptRef = await usersCollection
       .doc(userId)
       .collection('prompts')
       .add({
-        discussionId: discussionRef.id,
         ...discussionData,
-        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: new Date().getTime() // Fallback timestamp as milliseconds
       });
+      
+    discussionId = userPromptRef.id;
+    console.log('Successfully saved prompt directly to user collection:', discussionId);
     
-    return discussionRef.id;
+    // Only try to add to discussions collection if we succeeded with the user's collection
+    try {
+      // Add to general discussions collection with user reference
+      const discussionRef = await discussionsCollection.add({
+        userId: userId,
+        ...discussionData,
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        promptId: discussionId // Reference to the user's prompt
+      });
+      
+      // Update the user prompt with the discussion ID
+      await userPromptRef.update({
+        discussionId: discussionRef.id
+      });
+      
+    } catch (discussionError) {
+      // If discussions collection fails, it's not critical - log it but consider the operation successful
+      console.warn('Warning: Could not save to discussions collection:', discussionError);
+      // No need to rethrow - we still have the prompt saved in the user's collection
+    }
+    
+    return discussionId;
   } catch (error) {
     console.error('Error saving discussion:', error);
     return null;
@@ -131,7 +150,7 @@ async function getUserDiscussions(userId, limit = 20) {
     const promptsSnapshot = await usersCollection
       .doc(userId)
       .collection('prompts')
-      .orderBy('createdAt', 'desc')
+      .orderBy('timestamp', 'desc')
       .limit(limit)
       .get();
       
@@ -149,24 +168,22 @@ async function getUserDiscussions(userId, limit = 20) {
 }
 
 // Delete a discussion
-async function deleteDiscussion(userId, discussionId) {
-  if (!usersCollection || !discussionsCollection) initCollections();
+async function deleteDiscussion(userId, promptId, discussionId = null) {
+  if (!usersCollection) initCollections();
   
   try {
-    // Find the prompt in user's collection by discussionId
-    const promptsRef = usersCollection.doc(userId).collection('prompts');
-    const matchingPrompts = await promptsRef
-      .where('discussionId', '==', discussionId)
-      .get();
+    // Primary operation - delete from user's prompts collection
+    await usersCollection.doc(userId).collection('prompts').doc(promptId).delete();
     
-    // Delete from user's prompts collection
-    const deletePromises = matchingPrompts.docs.map(doc => doc.ref.delete());
-    
-    // Delete from main discussions collection
-    deletePromises.push(discussionsCollection.doc(discussionId).delete());
-    
-    // Execute all deletes
-    await Promise.all(deletePromises);
+    // Secondary operation - if we have a discussionId, try to delete it too
+    if (discussionId && discussionsCollection) {
+      try {
+        await discussionsCollection.doc(discussionId).delete();
+      } catch (err) {
+        // Not critical if this fails
+        console.warn('Could not delete from discussions collection:', err);
+      }
+    }
     
     return true;
   } catch (error) {
@@ -184,24 +201,68 @@ async function trackPromptGeneration(userId, promptData) {
   if (!usersCollection) initCollections();
   
   try {
-    // Anonymous tracking if no user ID (guest mode)
-    const trackingRef = userId 
-      ? usersCollection.doc(userId).collection('analytics').doc('usage')
-      : discussionsCollection.doc('anonymous_usage');
-      
-    // Update counters using atomic operations
-    await trackingRef.set({
-      totalPrompts: firebase.firestore.FieldValue.increment(1),
-      promptTypes: {
-        [promptData.type]: firebase.firestore.FieldValue.increment(1)
-      },
-      lastGenerated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge: true });
+    // Only attempt to write to Firestore if there's a valid user ID and auth state
+    if (userId && window.auth && window.auth.currentUser) {
+      try {
+        // Use a safer data structure with atomic increments
+        const userRef = usersCollection.doc(userId);
+        const updateData = {
+          usage: {
+            totalPrompts: firebase.firestore.FieldValue.increment(1),
+            lastGenerated: firebase.firestore.FieldValue.serverTimestamp()
+          }
+        };
+        
+        // Add prompt type counter using computed property name
+        const promptType = promptData.type || 'unknown';
+        updateData.usage[`promptTypes.${promptType}`] = firebase.firestore.FieldValue.increment(1);
+        
+        await userRef.set(updateData, { merge: true });
+        console.log('Successfully tracked prompt generation for user:', userId);
+        return true;
+      } catch (userError) {
+        console.warn('Could not update user analytics, using fallback storage:', userError.message);
+        // Fall through to local storage as backup
+      }
+    } else {
+      console.log('No authenticated user found for analytics tracking, using local storage');
+    }
     
-    return true;
+    // For anonymous users or as a fallback for authentication failures
+    try {
+      // Get existing stats from local storage
+      chrome.storage.local.get('anonymousUsage', (result) => {
+        const usage = result.anonymousUsage || { 
+          totalPrompts: 0,
+          promptTypes: {},
+          lastGenerated: new Date().toISOString()
+        };
+        
+        // Update stats
+        usage.totalPrompts += 1;
+        
+        // Update prompt type counter
+        const promptType = promptData.type || 'unknown';
+        usage.promptTypes[promptType] = (usage.promptTypes[promptType] || 0) + 1;
+        
+        usage.lastGenerated = new Date().toISOString();
+        
+        // Save back to storage
+        chrome.storage.local.set({ 'anonymousUsage': usage }, () => {
+          console.log('Anonymous usage tracked in local storage');
+        });
+      });
+      
+      return true;
+    } catch (storageError) {
+      console.error('Error tracking anonymous usage in storage:', storageError);
+      // Last resort - just log it and return success to prevent errors from surfacing to the user
+      return true;
+    }
   } catch (error) {
     console.error('Error tracking prompt generation:', error);
-    return false;
+    // Return true anyway to avoid disrupting the user experience
+    return true;
   }
 }
 
@@ -218,12 +279,12 @@ function formatTimestamp(timestamp) {
                timestamp instanceof Date ? timestamp :
                new Date(timestamp);
                
-  return date.toLocaleString(undefined, {
+  return date.toLocaleDateString(undefined, {
     year: 'numeric',
     month: 'short',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute:'2-digit'
   });
 }
 
