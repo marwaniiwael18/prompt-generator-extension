@@ -469,11 +469,14 @@ document.addEventListener('DOMContentLoaded', function() {
       try {
         console.log('Calling API with prompt:', userPrompt);
         
-        // Use a more specific URL format that might work better with the CSP
-        const apiUrl = new URL('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent');
-        apiUrl.searchParams.append('key', apiKey);
+        // Streamlined URL construction
+        const apiUrl = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=' + apiKey;
         
-        const response = await fetch(apiUrl.toString(), {
+        // Set timeout for fetch to prevent hanging requests
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+        
+        const response = await fetch(apiUrl, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -486,51 +489,66 @@ document.addEventListener('DOMContentLoaded', function() {
               temperature: 0.7,
               maxOutputTokens: 800
             }
-          })
+          }),
+          signal: controller.signal
         });
+        
+        // Clear the timeout
+        clearTimeout(timeoutId);
   
         // Log response status for debugging
         console.log('API Response status:', response.status);
   
         if (!response.ok) {
-          const errorResponse = await response.json();
-          console.error('API Error Response:', errorResponse);
-          throw new Error(`API responded with status ${response.status}: ${response.statusText}`);
+          const errorText = await response.text();
+          console.error('API Error Response:', errorText);
+          
+          // More specific error message based on response status
+          if (response.status === 429) {
+            throw new Error('Rate limit exceeded. Please try again in a few moments.');
+          } else if (response.status === 403) {
+            throw new Error('API key invalid or quota exceeded. Please check your API key.');
+          } else if (response.status === 0 || !navigator.onLine) {
+            throw new Error('Network connection lost. Please check your internet connection.');
+          } else {
+            throw new Error(`API error (${response.status}): ${response.statusText}`);
+          }
         }
   
         const data = await response.json();
-        console.log('API Response data:', data);
-  
+        
         // Extract the generated text from the candidates array
         if (data.candidates && data.candidates.length > 0) {
           const generatedCandidate = data.candidates[0];
-          console.log('Generated candidate:', generatedCandidate);
-  
-          // Check for multiple possible fields where the text might be stored
+          
+          // Directly access text content with fallbacks for different response structures
           let generatedText;
           if (generatedCandidate.content && generatedCandidate.content.parts && generatedCandidate.content.parts.length > 0) {
             generatedText = generatedCandidate.content.parts[0].text;
-            
-            // Clean up the response to ensure it's properly formatted
-            generatedText = cleanStructuredPromptOutput(generatedText);
+            return cleanStructuredPromptOutput(generatedText);
+          } else if (generatedCandidate.output) {
+            return cleanStructuredPromptOutput(generatedCandidate.output);
+          } else if (generatedCandidate.text) {
+            return cleanStructuredPromptOutput(generatedCandidate.text);
           } else {
-            generatedText = generatedCandidate.output || generatedCandidate.text;
-          }
-  
-          if (typeof generatedText === 'string') {
-            console.log('Final extracted text:', generatedText);
-            return generatedText;
-          } else {
-            console.error('Generated text is not a string or is undefined. Candidate:', generatedCandidate);
-            throw new Error('Generated text is not a string or is undefined.');
+            throw new Error('Could not extract generated text from response.');
           }
         } else {
-          console.error('No candidates found in the API response:', data);
-          throw new Error('No candidates found in the API response.');
+          throw new Error('No content generated. Please try again with a clearer request.');
         }
       } catch (error) {
         console.error('Error calling Gemini API:', error);
-        throw new Error('Failed to fetch. Please check your API key and network connection.');
+        
+        // More specific error messages
+        if (error.name === 'AbortError') {
+          throw new Error('Request timed out. The server took too long to respond.');
+        } else if (!navigator.onLine) {
+          throw new Error('You appear to be offline. Please check your internet connection.');
+        } else if (error.message.includes('Failed to fetch')) {
+          throw new Error('Network error. Please check your internet connection and try again.');
+        } else {
+          throw error; // Keep original error if it's already specific
+        }
       }
     }
   

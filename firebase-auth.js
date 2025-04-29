@@ -64,12 +64,10 @@ document.addEventListener('DOMContentLoaded', function() {
       function showAuthErrorMessage(message) {
         const errorElement = document.createElement('div');
         errorElement.className = 'auth-error';
-        errorElement.textContent = message;
-        errorElement.style.color = '#ff6b6b';
-        errorElement.style.fontSize = '12px';
-        errorElement.style.textAlign = 'center';
-        errorElement.style.padding = '5px';
-        errorElement.style.animation = 'fadeIn 0.3s ease';
+        errorElement.innerHTML = `
+          <svg class="error-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+          ${message}
+        `;
         
         // Remove any existing error messages
         document.querySelectorAll('.auth-error').forEach(el => el.remove());
@@ -291,15 +289,35 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // Show loading state
-      loginBtn.textContent = 'Signing in...';
+      loginBtn.innerHTML = `
+        <svg class="loading-spinner" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
+        </svg>
+        Signing in...
+      `;
       loginBtn.disabled = true;
       
+      console.log('Attempting to sign in with email/password');
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
-          console.log('User logged in:', userCredential.user);
+          console.log('User logged in successfully:', userCredential.user.email);
           // Reset guest prompt count on successful login
           if (window.resetGuestPromptCount) {
+            console.log('Resetting guest prompt count');
             window.resetGuestPromptCount();
+          }
+          
+          // Clear any existing generated content to start fresh
+          const userInput = document.getElementById('userInput');
+          if (userInput) userInput.value = '';
+          const generatedPrompt = document.getElementById('generatedPrompt');
+          if (generatedPrompt) generatedPrompt.value = '';
+          
+          // Hide output section for a clean slate
+          const outputSection = document.querySelector('.output-section');
+          if (outputSection) {
+            outputSection.style.display = 'none';
+            outputSection.classList.remove('visible');
           }
           
           // Close the sidebar after successful login
@@ -349,7 +367,12 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       
       // Show loading state
-      signupBtn.textContent = 'Creating account...';
+      signupBtn.innerHTML = `
+        <svg class="loading-spinner" viewBox="0 0 50 50">
+          <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
+        </svg>
+        Creating account...
+      `;
       signupBtn.disabled = true;
       
       // Directly try to create the account - Firebase will handle existing email errors
@@ -543,16 +566,22 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('signupEmail').value = '';
         document.getElementById('signupPassword').value = '';
         document.getElementById('confirmPassword').value = '';
-        loginBtn.textContent = 'Sign In';
+        loginBtn.innerHTML = `
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+          Sign In
+        `;
         loginBtn.disabled = false;
-        signupBtn.textContent = 'Create Account';
+        signupBtn.innerHTML = `
+          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+          Create Account
+        `;
         signupBtn.disabled = false;
         window.isGuestMode = true;
         window.currentUser = null;
       }
     });
   
-    // Load user's saved prompts from Firestore
+    // Load user's saved prompts from Firestore with enhanced visuals
     function loadUserPrompts(userId) {
       console.log("Loading prompts for user:", userId);
       
@@ -576,7 +605,11 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("Firestore query returned, empty:", snapshot.empty);
             
             if (snapshot.empty) {
-              promptHistory.innerHTML = '<li style="text-align:center;color:#888;">No saved prompts yet</li>';
+              promptHistory.innerHTML = `
+                <li class="empty-history">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                  <p style="text-align:center;color:#888;">No saved prompts yet</p>
+                </li>`;
               return;
             }
             
@@ -598,14 +631,20 @@ document.addEventListener('DOMContentLoaded', function() {
                   }
                 }
                 
+                // Get icon based on prompt type
+                const typeIcon = getPromptTypeIcon(promptData.type || 'unknown');
+                
                 const li = document.createElement('li');
                 li.dataset.promptId = promptId; // Store prompt ID for later use
                 li.innerHTML = `
                   <div class="prompt-item">
                     <div class="prompt-content">
-                      <span class="prompt-type">${promptData.type || 'unknown'}</span>
+                      <span class="prompt-type">${typeIcon} ${promptData.type || 'unknown'}</span>
                       ${truncateText(promptData.content || 'No content', 30)}
-                      <span class="prompt-date">${dateText}</span>
+                      <span class="prompt-date">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        ${dateText}
+                      </span>
                     </div>
                     <button class="delete-prompt-btn" title="Delete this prompt">
                       <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -624,6 +663,17 @@ document.addEventListener('DOMContentLoaded', function() {
                   const outputSection = document.querySelector('.output-section');
                   outputSection.style.display = 'block';
                   outputSection.classList.add('visible');
+                  
+                  // Also update the prompt type dropdown to match this prompt's type
+                  const promptTypeSelect = document.getElementById('promptType');
+                  if (promptTypeSelect && promptData.type) {
+                    // Try to find a matching option
+                    Array.from(promptTypeSelect.options).forEach(option => {
+                      if (option.value === promptData.type) {
+                        promptTypeSelect.value = promptData.type;
+                      }
+                    });
+                  }
                 });
                 
                 // Add delete handler
@@ -641,7 +691,11 @@ document.addEventListener('DOMContentLoaded', function() {
           })
           .catch(error => {
             console.error('Error loading prompts:', error);
-            promptHistory.innerHTML = '<li style="text-align:center;color:#ff6b6b;">Error loading prompts</li>';
+            promptHistory.innerHTML = `
+              <li class="error-history">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <p style="text-align:center;color:#ff6b6b;">Error loading prompts</p>
+              </li>`;
           });
       } catch (error) {
         console.error("Error in loadUserPrompts:", error);
@@ -649,7 +703,7 @@ document.addEventListener('DOMContentLoaded', function() {
       }
     }
     
-    // Function to delete a prompt
+    // Function to delete a prompt with animation
     function deletePrompt(userId, promptId) {
       if (!userId || !promptId) {
         console.error('Missing userId or promptId for deletion');
@@ -683,7 +737,11 @@ document.addEventListener('DOMContentLoaded', function() {
               
               // If no prompts left, show the empty message
               if (promptHistory.children.length === 0) {
-                promptHistory.innerHTML = '<li style="text-align:center;color:#888;">No saved prompts yet</li>';
+                promptHistory.innerHTML = `
+                  <li class="empty-history">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <p style="text-align:center;color:#888;">No saved prompts yet</p>
+                  </li>`;
               }
             }, 300);
           } else {
@@ -700,6 +758,20 @@ document.addEventListener('DOMContentLoaded', function() {
             promptItem.classList.remove('deleting');
           }
         });
+    }
+
+    // Get appropriate icon for prompt type
+    function getPromptTypeIcon(type) {
+      const iconMap = {
+        'question': '❓',
+        'creative': '🎨',
+        'coding': '💻',
+        'explanation': '📚',
+        'brainstorm': '🧠',
+        'unknown': '📝'
+      };
+      
+      return iconMap[type] || '📝';
     }
     
     // Helper function to truncate text
