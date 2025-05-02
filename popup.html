@@ -6,7 +6,6 @@
   <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=380, initial-scale=1.0, maximum-scale=1.0">
   <meta charset="UTF-8"> <!-- Added charset for proper emoji rendering -->
-  <script src="src/js/utils/error-handler.js"></script>
 </head>
 <body>
   <!-- Sidebar for authentication -->
@@ -24,14 +23,23 @@
           <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
           <input type="email" id="loginEmail" placeholder="Email" required>
         </div>
-        <div class="input-with-icon">
+        <div class="input-with-icon password-field">
           <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           <input type="password" id="loginPassword" placeholder="Password" required>
         </div>
-        <button id="loginBtn" class="auth-btn ripple-effect">
-          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-          Sign In
-        </button>
+        <p class="forgot-password">
+          <a href="#" id="forgotPassword">Forgot Password?</a>
+        </p>
+        <div class="auth-buttons">
+          <button id="loginBtn" class="auth-btn ripple-effect">
+            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+            Sign In
+          </button>
+          <button id="resetPasswordBtn" class="auth-btn ripple-effect hidden">
+            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            Send Reset Link
+          </button>
+        </div>
         <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
         <button id="googleSignInBtn" class="social-auth-btn ripple-effect">
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#DB4437">
@@ -39,6 +47,25 @@
           </svg>
           Sign in with Google
         </button>
+      </div>
+      
+      <div id="resetPasswordForm" class="auth-form hidden">
+        <h2>🔑 Reset Password</h2>
+        <p class="form-description">Enter your email address and we'll send you a link to reset your password.</p>
+        <div class="input-with-icon">
+          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+          <input type="email" id="resetEmail" placeholder="Email" required>
+        </div>
+        <div class="auth-buttons">
+          <button id="sendResetLinkBtn" class="auth-btn ripple-effect">
+            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            Send Reset Link
+          </button>
+          <button id="backToLogin" class="text-button ripple-effect">
+            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            Back to Login
+          </button>
+        </div>
       </div>
       
       <div id="signupForm" class="auth-form hidden">
@@ -199,18 +226,30 @@
     </footer>
   </div>
   
-  <!-- Firebase SDK (locally stored) -->
+  <!-- Firebase Core SDK -->
   <script src="lib/firebase-app-compat.js"></script>
+  
+  <!-- Add Firebase products that you want to use -->
   <script src="lib/firebase-auth-compat.js"></script>
   <script src="lib/firebase-firestore-compat.js"></script>
   
-  <!-- Project scripts -->
+  <!-- Initialize Firebase -->
   <script src="src/js/firebase/firebase-config.js"></script>
+  
+  <!-- Utils and Error Handlers -->
   <script src="src/js/utils/error-handler.js"></script>
+  <script src="src/js/utils/get-redirect-url.js"></script>
+  
+  <!-- Firebase related scripts -->
   <script src="src/js/firebase/firestore-data-structure.js"></script>
+  
+  <!-- Auth related scripts -->
+  <script src="src/js/auth/auth-utils.js"></script>
   <script src="src/js/auth/firebase-auth.js"></script>
-  <script src="src/js/popup/popup.js"></script>
   <script src="src/js/auth/login-handler.js"></script>
   <script src="src/js/auth/logout-handler.js"></script>
+  
+  <!-- Main popup script -->
+  <script src="src/js/popup/popup.js"></script>
 </body>
 </html>

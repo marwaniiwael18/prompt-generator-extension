@@ -21,6 +21,73 @@ document.addEventListener('DOMContentLoaded', function() {
         } 
       };
     }
+    
+    // Get all the required DOM elements with null checks
+    const elements = {
+      authContainer: document.getElementById('authContainer'),
+      loginForm: document.getElementById('loginForm'),
+      signupForm: document.getElementById('signupForm'),
+      showSignup: document.getElementById('showSignup'),
+      showLogin: document.getElementById('showLogin'),
+      loginBtn: document.getElementById('loginBtn'),
+      signupBtn: document.getElementById('signupBtn'),
+      googleSignInBtn: document.getElementById('googleSignInBtn'),
+      logoutBtn: document.getElementById('logoutBtn'),
+      userInfo: document.getElementById('userInfo'),
+      userEmail: document.getElementById('userEmail'),
+      historySection: document.querySelector('.history-section'),
+      guestInfo: document.querySelector('.guest-info'),
+      promptHistory: document.getElementById('promptHistory'),
+      saveBtn: document.getElementById('saveBtn'),
+      forgotPasswordLink: document.getElementById('forgotPassword'),
+      resetPasswordBtn: document.getElementById('resetPasswordBtn'),
+      loginEmail: document.getElementById('loginEmail'),
+      loginPassword: document.getElementById('loginPassword'),
+      passwordField: document.querySelector('.password-field')
+    };
+    
+    // Validate required elements exist
+    const requiredElements = ['loginForm', 'signupForm', 'loginBtn', 'signupBtn', 'userInfo'];
+    const missingElements = requiredElements.filter(key => !elements[key]);
+    
+    if (missingElements.length > 0) {
+        console.error('Missing required elements:', missingElements);
+        return; // Exit if required elements are missing
+    }
+
+    // Handle forgot password click with null checks
+    if (elements.forgotPasswordLink && elements.passwordField && elements.loginBtn && elements.resetPasswordBtn) {
+        elements.forgotPasswordLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const heading = document.querySelector('#loginForm h2');
+            if (!heading) return;
+
+            // Update UI for password reset
+            heading.innerHTML = '🔑 Reset Password';
+            elements.passwordField.classList.add('hidden');
+            elements.loginBtn.classList.add('hidden');
+            elements.resetPasswordBtn.classList.remove('hidden');
+            elements.forgotPasswordLink.textContent = 'Back to Login';
+        });
+    }
+
+    // Handle back to login with null checks
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('#forgotPassword') && e.target.textContent === 'Back to Login') {
+            e.preventDefault();
+            const heading = document.querySelector('#loginForm h2');
+            if (!heading) return;
+
+            // Reset UI back to login
+            heading.innerHTML = '🔐 Sign In';
+            elements.passwordField?.classList.remove('hidden');
+            elements.loginBtn?.classList.remove('hidden');
+            elements.resetPasswordBtn?.classList.add('hidden');
+            if (elements.forgotPasswordLink) {
+                elements.forgotPasswordLink.textContent = 'Forgot Password?';
+            }
+        }
+    });
 
     // DOM elements for authentication
     const authContainer = document.getElementById('authContainer');
@@ -44,6 +111,13 @@ document.addEventListener('DOMContentLoaded', function() {
     const sidebar = document.getElementById('sidebar');
     const closeSidebar = document.getElementById('closeSidebar');
     const overlay = document.getElementById('overlay');
+    
+    // DOM elements for forgot password
+    const forgotPasswordLink = document.getElementById('forgotPassword');
+    const backToLoginLink = document.getElementById('backToLogin');
+    const resetPasswordForm = document.getElementById('resetPasswordForm');
+    const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+    const resetEmail = document.getElementById('resetEmail');
     
     // === AUTH HELPER FUNCTIONS ===
     
@@ -795,4 +869,249 @@ document.addEventListener('DOMContentLoaded', function() {
     // Make loadUserPrompts available globally
     window.loadUserPrompts = loadUserPrompts;
     window.deletePrompt = deletePrompt;
+
+    // Switch to password reset form
+    forgotPasswordLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        // Get email from login form if available
+        const loginEmail = document.getElementById('loginEmail').value;
+        
+        loginForm.style.opacity = '0';
+        loginForm.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            loginForm.classList.add('hidden');
+            resetPasswordForm.classList.remove('hidden');
+            
+            // Pre-fill email if available
+            if (loginEmail) {
+                resetEmail.value = loginEmail;
+            }
+            
+            setTimeout(() => {
+                resetPasswordForm.style.opacity = '1';
+                resetPasswordForm.style.transform = 'translateY(0)';
+                resetEmail.focus();
+            }, 50);
+        }, 200);
+    });
+
+    // Back to login form
+    backToLoginLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        resetPasswordForm.style.opacity = '0';
+        resetPasswordForm.style.transform = 'translateY(-10px)';
+        
+        setTimeout(() => {
+            resetPasswordForm.classList.add('hidden');
+            loginForm.classList.remove('hidden');
+            
+            setTimeout(() => {
+                loginForm.style.opacity = '1';
+                loginForm.style.transform = 'translateY(0)';
+            }, 50);
+        }, 200);
+    });
+
+    // Handle password reset request
+    resetPasswordBtn.addEventListener('click', async function() {
+        const email = resetEmail.value.trim();
+        
+        if (!email) {
+            handleAuthError({ 
+                code: 'auth/missing-email', 
+                message: 'Please enter your email address'
+            }, {
+                loginForm, 
+                signupForm,
+                resetPasswordForm
+            });
+            return;
+        }
+
+        // Show loading state
+        resetPasswordBtn.innerHTML = `
+            <svg class="loading-spinner" viewBox="0 0 50 50">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
+            </svg>
+            Sending...
+        `;
+        resetPasswordBtn.disabled = true;
+
+        try {
+            await auth.sendPasswordResetEmail(email);
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'success-message';
+            successMsg.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Reset link sent! Please check your email
+            `;
+            
+            resetPasswordForm.insertBefore(successMsg, resetPasswordBtn);
+            
+            // Return to login form after 3 seconds
+            setTimeout(() => {
+                backToLoginLink.click();
+                // Remove success message after transition
+                setTimeout(() => successMsg.remove(), 300);
+            }, 3000);
+            
+        } catch (error) {
+            console.error('Password reset error:', error);
+            
+            // Reset button state
+            resetPasswordBtn.innerHTML = `
+                <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                Send Reset Link
+            `;
+            resetPasswordBtn.disabled = false;
+            
+            // Show error using our error handler
+            handleAuthError(error, {
+                loginForm, 
+                signupForm,
+                resetPasswordForm
+            });
+        }
+    });
+
+    // Handle forgot password click
+    forgotPasswordLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        const passwordField = document.querySelector('.password-field');
+        const loginBtn = document.getElementById('loginBtn');
+        const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+        const forgotPasswordLink = document.getElementById('forgotPassword');
+        const heading = document.querySelector('#loginForm h2');
+        const original = {
+            text: heading.innerHTML,
+            height: passwordField.offsetHeight
+        };
+
+        // Update UI for password reset
+        heading.innerHTML = '🔑 Reset Password';
+        passwordField.classList.add('hidden');
+        loginBtn.classList.add('hidden');
+        resetPasswordBtn.classList.remove('hidden');
+        forgotPasswordLink.textContent = 'Back to Login';
+    });
+
+    // Handle back to login
+    document.addEventListener('click', function(e) {
+        if (e.target.matches('#forgotPassword') && e.target.textContent === 'Back to Login') {
+            e.preventDefault();
+            const passwordField = document.querySelector('.password-field');
+            const loginBtn = document.getElementById('loginBtn');
+            const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+            const forgotPasswordLink = document.getElementById('forgotPassword');
+            const heading = document.querySelector('#loginForm h2');
+
+            // Reset UI back to login
+            heading.innerHTML = '🔐 Sign In';
+            passwordField.classList.remove('hidden');
+            loginBtn.classList.remove('hidden');
+            resetPasswordBtn.classList.add('hidden');
+            forgotPasswordLink.textContent = 'Forgot Password?';
+        }
+    });
+
+    // Handle reset password request
+    resetPasswordBtn.addEventListener('click', async function() {
+        const email = document.getElementById('loginEmail').value.trim();
+        
+        if (!email) {
+            handleAuthError({ 
+                code: 'auth/missing-email', 
+                message: 'Please enter your email address'
+            }, {
+                loginForm,
+                signupForm
+            });
+            return;
+        }
+
+        // Show loading state
+        resetPasswordBtn.innerHTML = `
+            <svg class="loading-spinner" viewBox="0 0 50 50">
+                <circle cx="25" cy="25" r="20" fill="none" stroke="currentColor" stroke-width="5"></circle>
+            </svg>
+            Sending...
+        `;
+        resetPasswordBtn.disabled = true;
+
+        try {
+            await auth.sendPasswordResetEmail(email);
+            
+            // Show success message
+            const successMsg = document.createElement('div');
+            successMsg.className = 'success-message';
+            successMsg.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                </svg>
+                Reset link sent! Please check your email
+            `;
+            
+            loginForm.insertBefore(successMsg, loginForm.querySelector('button'));
+            
+            // Return to login form after 3 seconds
+            setTimeout(() => {
+                const passwordField = document.querySelector('.password-field');
+                const loginBtn = document.getElementById('loginBtn');
+                const resetPasswordBtn = document.getElementById('resetPasswordBtn');
+                const forgotPasswordLink = document.getElementById('forgotPassword');
+                const heading = document.querySelector('#loginForm h2');
+
+                // Reset UI back to login
+                heading.innerHTML = '🔐 Sign In';
+                passwordField.classList.remove('hidden');
+                loginBtn.classList.remove('hidden');
+                resetPasswordBtn.classList.add('hidden');
+                forgotPasswordLink.textContent = 'Forgot Password?';
+                
+                // Reset button state
+                resetPasswordBtn.innerHTML = `
+                    <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                    </svg>
+                    Send Reset Link
+                `;
+                resetPasswordBtn.disabled = false;
+                
+                // Remove success message after transition
+                setTimeout(() => successMsg.remove(), 300);
+            }, 3000);
+            
+        } catch (error) {
+            console.error('Password reset error:', error);
+            
+            // Reset button state
+            resetPasswordBtn.innerHTML = `
+                <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                    <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                Send Reset Link
+            `;
+            resetPasswordBtn.disabled = false;
+            
+            // Show error using our error handler
+            handleAuthError(error, {
+                loginForm,
+                signupForm
+            });
+        }
+    });
 });

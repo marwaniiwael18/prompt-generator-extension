@@ -400,6 +400,16 @@ button:disabled {
     color: #f0f0f0;
     font-family: inherit;
     font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.auth-form input.hidden {
+    max-height: 0;
+    padding: 0;
+    margin: 0;
+    opacity: 0;
+    border: none;
+    pointer-events: none;
 }
   
 .auth-form input:focus {
@@ -412,6 +422,24 @@ button:disabled {
     background: linear-gradient(135deg, #4285f4, #0F9D58);
     padding: 12px;
     font-weight: 600;
+    transition: all 0.3s ease;
+    transform: translateY(0);
+    opacity: 1;
+    margin: 8px 0;
+    pointer-events: auto;
+}
+
+.auth-btn.hidden {
+    opacity: 0;
+    transform: translateY(-10px);
+    margin: 0;
+    height: 0;
+    padding: 0;
+    pointer-events: none;
+}
+
+.auth-form button.hidden {
+    display: none;
 }
   
 .auth-form p {
@@ -974,4 +1002,109 @@ button:disabled {
     align-items: center;
     justify-content: center;
     gap: 6px;
+}
+
+/* Forgot password styles */
+.forgot-password {
+  text-align: right;
+  margin: 0 0 15px;
+  font-size: 12px;
+  transition: visibility 0.3s ease;
+}
+
+.forgot-password a {
+  color: #4285f4;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.forgot-password a:hover {
+  color: #5290f5;
+  text-decoration: underline;
+}
+
+.form-description {
+  color: #b0b0b0;
+  font-size: 13px;
+  text-align: center;
+  margin: 0 0 15px;
+  line-height: 1.4;
+}
+
+/* Success message styles */
+.success-message {
+  background-color: rgba(15, 157, 88, 0.1);
+  border-left: 3px solid #0F9D58;
+  padding: 10px 12px;
+  margin: 12px 0;
+  font-size: 13px;
+  color: #0F9D58;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  animation: fadeIn 0.3s ease;
+}
+
+.auth-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+#resetPasswordSection {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+#resetPasswordSection.visible {
+  opacity: 1;
+  max-height: 100px;
+}
+
+.text-button {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #4285f4;
+  padding: 8px;
+  min-height: 36px;
+}
+
+.text-button:hover {
+  background: rgba(66, 133, 244, 0.1);
+  transform: none;
+  box-shadow: none;
+}
+
+.auth-form .success-message {
+  margin: 8px 0;
+  padding: 8px 12px;
+  background: rgba(15, 157, 88, 0.1);
+  border-left: 3px solid #0F9D58;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #0F9D58;
+  animation: fadeIn 0.3s ease;
+}
+
+.password-field {
+    transition: all 0.3s ease;
+    max-height: 60px;
+    opacity: 1;
+    margin: 12px 0;
+    transform: translateY(0);
+}
+
+.password-field.hidden {
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
+    transform: translateY(-10px);
+    pointer-events: none;
 }

@@ -3,8 +3,18 @@
  * Helps with user verification and error handling
  */
 
+// Make sure firebase is initialized before using auth methods
+function ensureFirebaseInit() {
+  if (!window.firebase || !window.auth) {
+    console.error('Firebase not properly initialized');
+    throw new Error('Firebase not properly initialized');
+  }
+}
+
 // Check if a user exists before login attempt
 async function checkUserExists(email) {
+  ensureFirebaseInit();
+  
   try {
     // This uses Firebase Auth methods to check if a user exists
     const signInMethods = await firebase.auth().fetchSignInMethodsForEmail(email);
@@ -85,6 +95,7 @@ function switchToLogin(email = '') {
 
 // Export utilities
 window.authUtils = {
+  ensureFirebaseInit,
   checkUserExists,
   switchToSignup,
   switchToLogin

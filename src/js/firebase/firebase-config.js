@@ -11,56 +11,50 @@
     measurementId: "G-VQMR4ZZCZY"
   };
 
-  // Ensure window.firebase exists, even if the libraries didn't load
-  if (typeof window.firebase === 'undefined') {
-    console.warn('Firebase SDK not fully loaded - using mock implementation');
-    window.firebase = {
-      apps: [],
-      initializeApp: function() {
-        console.log('Mock Firebase initialization');
-        return {};
-      }
-    };
-  }
-
   // Initialize Firebase
-  if (!firebase.apps || !firebase.apps.length) {
+  if (!window.firebase || !window.firebase.apps || !window.firebase.apps.length) {
     try {
-      firebase.initializeApp(firebaseConfig);
+      if (!window.firebase) {
+        console.error('Firebase SDK not loaded');
+        return;
+      }
+      window.firebaseApp = firebase.initializeApp(firebaseConfig);
       console.log("Firebase initialized successfully");
+
+      // Initialize Auth and Firestore
+      window.auth = firebase.auth();
+      window.db = firebase.firestore();
+      
+      // Set persistence to LOCAL for better user experience
+      firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .catch((error) => {
+          console.error("Error setting persistence:", error);
+        });
+
     } catch (e) {
       console.error("Firebase initialization error:", e);
+      // Provide mock implementations if initialization fails
+      window.auth = {
+        onAuthStateChanged: (callback) => { callback(null); return () => {}; },
+        signInWithEmailAndPassword: () => Promise.resolve({ user: null }),
+        createUserWithEmailAndPassword: () => Promise.resolve({ user: null }),
+        signInWithPopup: () => Promise.resolve({ user: null }),
+        signOut: () => Promise.resolve()
+      };
+      
+      window.db = {
+        collection: () => ({
+          doc: () => ({
+            get: () => Promise.resolve({ exists: false, data: () => ({}) }),
+            set: () => Promise.resolve(),
+            update: () => Promise.resolve(),
+            collection: () => ({})
+          }),
+          add: () => Promise.resolve(),
+          orderBy: () => ({ limit: () => ({ get: () => Promise.resolve({ empty: true, docs: [] }) }) }),
+          where: () => ({ get: () => Promise.resolve({ empty: true, docs: [] }) })
+        })
+      };
     }
-  }
-    
-  // Make auth and firestore globally available
-  try {
-    window.auth = firebase.auth();
-    window.db = firebase.firestore();
-  } catch (e) {
-    console.error("Error initializing Firebase services:", e);
-    
-    // Provide mock implementations if real ones fail
-    window.auth = window.auth || {
-      onAuthStateChanged: (callback) => { callback(null); return () => {}; },
-      signInWithEmailAndPassword: () => Promise.resolve({ user: null }),
-      createUserWithEmailAndPassword: () => Promise.resolve({ user: null }),
-      signInWithPopup: () => Promise.resolve({ user: null }),
-      signOut: () => Promise.resolve()
-    };
-    
-    window.db = window.db || {
-      collection: () => ({
-        doc: () => ({
-          collection: () => ({}),
-          get: () => Promise.resolve({ exists: false, data: () => ({}) }),
-          set: () => Promise.resolve(),
-          update: () => Promise.resolve()
-        }),
-        add: () => Promise.resolve(),
-        orderBy: () => ({ limit: () => ({ get: () => Promise.resolve({ empty: true, docs: [] }) }) }),
-        where: () => ({ get: () => Promise.resolve({ empty: true, docs: [] }) })
-      })
-    };
   }
 })();

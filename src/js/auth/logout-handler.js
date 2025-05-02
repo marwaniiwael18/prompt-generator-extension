@@ -3,16 +3,34 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-  // The logout button click is already handled in firebase-auth.js
-  // This file now focuses on cleanup operations and proper state management
-  
-  // Add a listener for auth state changes specifically for cleanup
-  firebase.auth().onAuthStateChanged(function(user) {
-    if (!user) {
-      // When the user logs out (auth state becomes null)
-      console.log('Logout detected in logout-handler.js');
-      cleanupUserSession();
+  // Wait for Firebase to be initialized
+  function waitForFirebase(callback, maxAttempts = 10) {
+    let attempts = 0;
+    
+    function checkFirebase() {
+      attempts++;
+      if (window.firebase && window.firebase.auth) {
+        callback();
+      } else if (attempts < maxAttempts) {
+        setTimeout(checkFirebase, 100);
+      } else {
+        console.error('Firebase auth not available after maximum attempts');
+      }
     }
+    
+    checkFirebase();
+  }
+  
+  // Initialize auth state listener once Firebase is ready
+  waitForFirebase(() => {
+    // Add a listener for auth state changes specifically for cleanup
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (!user) {
+        // When the user logs out (auth state becomes null)
+        console.log('Logout detected in logout-handler.js');
+        cleanupUserSession();
+      }
+    });
   });
   
   // Function to clean up any user data or state before logout
