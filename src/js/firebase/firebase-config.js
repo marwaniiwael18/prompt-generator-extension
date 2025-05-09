@@ -1,5 +1,10 @@
 // Initialize Firebase with window check to avoid reference errors
 (function() {
+  // Debug Firebase SDK loading
+  console.log('Firebase initialization started');
+  console.log('Firebase SDK available:', typeof firebase !== 'undefined');
+  console.log('Window firebase available:', typeof window.firebase !== 'undefined');
+  
   // Your Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDaYKeX0tRv1RQYtfp3zBiJyN-VFA7rzF8",
