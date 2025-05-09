@@ -2,115 +2,180 @@
 <html>
 <head>
   <title>AI Prompt Generator</title>
-  <link rel="stylesheet" href="src/css/popup.css">
+  <link rel="stylesheet" href="src/css/popup-new.css">
   <meta name="color-scheme" content="dark">
   <meta name="viewport" content="width=380, initial-scale=1.0, maximum-scale=1.0">
   <meta charset="UTF-8"> <!-- Added charset for proper emoji rendering -->
 </head>
 <body>
-  <!-- Sidebar for authentication -->
+  <!-- Header with menu button -->
+  <div class="header">
+    <div class="header-left">
+      <button id="menuBtn" class="menu-btn" aria-label="Menu">
+        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
+          <rect y="0" width="18" height="2" rx="1"/>
+          <rect y="5" width="18" height="2" rx="1"/>
+          <rect y="10" width="18" height="2" rx="1"/>
+        </svg>
+      </button>
+      <h1>✨ AI Prompt Generator</h1>
+    </div>
+    <div class="header-right">
+      <button id="subscriptionBtn" class="subscription-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="gold" stroke="#663D00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path>
+        </svg>
+      </button>
+    </div>
+  </div>
+  
+  <!-- Sidebar for authentication and subscription -->
   <div id="sidebar" class="sidebar">
     <div class="sidebar-header">
-      <h3>⭐ Account</h3>
-      <button id="closeSidebar" class="close-btn">&times;</button>
+      <h3>✨ Account</h3>
+      <button id="closeSidebar" class="close-btn" aria-label="Close">&times;</button>
     </div>
     
-    <!-- Auth Container -->
-    <div id="authContainer" class="auth-container">
-      <div id="loginForm" class="auth-form">
-        <h2>🔐 Sign In</h2>
-        <div class="input-with-icon">
-          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          <input type="email" id="loginEmail" placeholder="Email" required>
-        </div>
-        <div class="input-with-icon password-field">
-          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <input type="password" id="loginPassword" placeholder="Password" required>
-        </div>
-        <p class="forgot-password">
-          <a href="#" id="forgotPassword">Forgot Password?</a>
-        </p>
-        <div class="auth-buttons">
-          <button id="loginBtn" class="auth-btn ripple-effect">
-            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
-            Sign In
-          </button>
-          <button id="resetPasswordBtn" class="auth-btn ripple-effect hidden">
-            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            Send Reset Link
-          </button>
-        </div>
-        <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
-        <button id="googleSignInBtn" class="social-auth-btn ripple-effect">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#DB4437">
-            <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
-          </svg>
-          Sign in with Google
-        </button>
-      </div>
-      
-      <div id="resetPasswordForm" class="auth-form hidden">
-        <h2>🔑 Reset Password</h2>
-        <p class="form-description">Enter your email address and we'll send you a link to reset your password.</p>
-        <div class="input-with-icon">
-          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          <input type="email" id="resetEmail" placeholder="Email" required>
-        </div>
-        <div class="auth-buttons">
-          <button id="sendResetLinkBtn" class="auth-btn ripple-effect">
-            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-            Send Reset Link
-          </button>
-          <button id="backToLogin" class="text-button ripple-effect">
-            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
-            Back to Login
-          </button>
-        </div>
-      </div>
-      
-      <div id="signupForm" class="auth-form hidden">
-        <h2>📝 Sign Up</h2>
-        <div class="input-with-icon">
-          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
-          <input type="email" id="signupEmail" placeholder="Email" required>
-        </div>
-        <div class="input-with-icon">
-          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <input type="password" id="signupPassword" placeholder="Password" required>
-        </div>
-        <div class="input-with-icon">
-          <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-          <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
-        </div>
-        <button id="signupBtn" class="auth-btn ripple-effect">
-          <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-          Create Account
-        </button>
-        <p>Already have an account? <a href="#" id="showLogin">Sign In</a></p>
-      </div>
-      
-      <!-- User Info Section (shown when logged in) -->
-      <div id="userInfo" class="user-info hidden">
-        <div class="user-profile">
-          <svg class="user-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-          <span id="userEmail"></span>
-          <p class="status-text">
-            <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#0F9D58" stroke="#0F9D58" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-            Logged in
+    <div class="sidebar-content">
+      <!-- Left side - Auth Container -->
+      <div id="authContainer" class="auth-container">
+        <div id="loginForm" class="auth-form">
+          <h2>🔐 Sign In</h2>
+          <div class="input-with-icon">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <input type="email" id="loginEmail" placeholder="Email" required>
+          </div>
+          <div class="input-with-icon password-field">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+          </div>
+          <p class="forgot-password">
+            <a href="#" id="forgotPassword">Forgot Password?</a>
           </p>
-        </div>
-        <div class="user-actions">
-          <button id="logoutBtn">
-            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-            Logout
+          <div class="auth-buttons">
+            <button id="loginBtn" class="auth-btn ripple-effect">
+              <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"></path><polyline points="10 17 15 12 10 7"></polyline><line x1="15" y1="12" x2="3" y2="12"></line></svg>
+              Sign In
+            </button>
+            <button id="resetPasswordBtn" class="auth-btn ripple-effect hidden">
+              <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              Send Reset Link
+            </button>
+          </div>
+          <p>Don't have an account? <a href="#" id="showSignup">Sign Up</a></p>
+          <button id="googleSignInBtn" class="social-auth-btn ripple-effect">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="#DB4437">
+              <path d="M12.545,10.239v3.821h5.445c-0.712,2.315-2.647,3.972-5.445,3.972c-3.332,0-6.033-2.701-6.033-6.032s2.701-6.032,6.033-6.032c1.498,0,2.866,0.549,3.921,1.453l2.814-2.814C17.503,2.988,15.139,2,12.545,2C7.021,2,2.543,6.477,2.543,12s4.478,10,10.002,10c8.396,0,10.249-7.85,9.426-11.748L12.545,10.239z"/>
+            </svg>
+            Sign in with Google
           </button>
+        </div>
+        
+        <div id="resetPasswordForm" class="auth-form hidden">
+          <h2>🔑 Reset Password</h2>
+          <p class="form-description">Enter your email address and we'll send you a link to reset your password.</p>
+          <div class="input-with-icon">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <input type="email" id="resetEmail" placeholder="Email" required>
+          </div>
+          <div class="auth-buttons">
+            <button id="sendResetLinkBtn" class="auth-btn ripple-effect">
+              <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              Send Reset Link
+            </button>
+            <button id="backToLogin" class="text-button ripple-effect">
+              <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+              Back to Login
+            </button>
+          </div>
+        </div>
+        
+        <div id="signupForm" class="auth-form hidden">
+          <h2>📝 Sign Up</h2>
+          <div class="input-with-icon">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+            <input type="email" id="signupEmail" placeholder="Email" required>
+          </div>
+          <div class="input-with-icon">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <input type="password" id="signupPassword" placeholder="Password" required>
+          </div>
+          <div class="input-with-icon">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            <input type="password" id="confirmPassword" placeholder="Confirm Password" required>
+          </div>
+          <button id="signupBtn" class="auth-btn ripple-effect">
+            <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
+            Create Account
+          </button>
+          <p>Already have an account? <a href="#" id="showLogin">Sign In</a></p>
+        </div>
+        
+        <!-- User Info Section (shown when logged in) -->
+        <div id="userInfo" class="user-info hidden">
+          <div class="user-profile">
+            <svg class="user-icon" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            <span id="userEmail"></span>
+            <p class="status-text">
+              <svg class="status-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="#0F9D58" stroke="#0F9D58" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+              Logged in
+            </p>
+          </div>
+          <div class="user-actions">
+            <button id="logoutBtn">
+              <svg class="button-icon" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+              Logout
+            </button>
+          </div>
+        </div>
+        
+        <div class="guest-info">
+          <svg class="guest-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <p>Currently using as a guest</p>
+          <p class="small-text">Sign in to save your prompts and use unlimited generations</p>
         </div>
       </div>
       
-      <div class="guest-info">
-        <svg class="guest-icon" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <p>Currently using as a guest</p>
-        <p class="small-text">Sign in to save your prompts and use unlimited generations</p>
+      <!-- Right side - Subscription Container -->
+      <div id="subscriptionContainer" class="subscription-container">
+        <h3>
+          <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="gold" stroke="#663D00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path>
+          </svg>
+          Subscription Plans
+        </h3>
+        <div class="subscription-plans">
+          <div class="plan-card">
+            <div class="plan-header">
+              <h4>Weekly Plan</h4>
+              <div class="price">€11<span>/week</span></div>
+            </div>
+            <ul class="plan-features">
+              <li>Unlimited prompt generation</li>
+              <li>Ad-free experience</li>
+              <li>Priority support</li>
+            </ul>
+            <button class="subscribe-btn" data-plan="weekly">
+              Subscribe Now
+            </button>
+          </div>
+          <div class="plan-card featured">
+            <div class="plan-header">
+              <h4>Monthly Plan</h4>
+              <div class="price">€40<span>/month</span></div>
+              <div class="save-badge">Save 10%</div>
+            </div>
+            <ul class="plan-features">
+              <li>Unlimited prompt generation</li>
+              <li>Ad-free experience</li>
+              <li>Priority support</li>
+              <li>Advanced features</li>
+            </ul>
+            <button class="subscribe-btn" data-plan="monthly">
+              Subscribe Now
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -119,25 +184,26 @@
   <div id="overlay" class="overlay"></div>
   
   <div class="container">
-    <!-- Header with menu button -->
-    <div class="header">
-      <button id="menuBtn" class="menu-btn">
-        <svg width="18" height="12" viewBox="0 0 18 12" fill="currentColor">
-          <rect y="0" width="18" height="2" rx="1"/>
-          <rect y="5" width="18" height="2" rx="1"/>
-          <rect y="10" width="18" height="2" rx="1"/>
-        </svg>
-      </button>
-      <h1>⭐ AI Prompt Generator</h1>
-      <!-- Removed popupLogoutBtn -->
-    </div>
-    
     <!-- Guest limit counter -->
     <div id="guestLimitContainer" class="guest-limit-container">
       <div id="guestLimitCounter" class="guest-limit-counter">
         <svg class="counter-icon" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path></svg>
         0/6 prompts used
       </div>
+    </div>
+    
+    <!-- Scroll Control Buttons -->
+    <div class="scroll-controls">
+      <button id="scrollUpBtn" class="scroll-btn" aria-label="Scroll up">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="18 15 12 9 6 15"></polyline>
+        </svg>
+      </button>
+      <button id="scrollDownBtn" class="scroll-btn" aria-label="Scroll down">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
     </div>
     
     <!-- Always visible app content -->
@@ -218,6 +284,67 @@
         </h3>
         <ul id="promptHistory"></ul>
       </div>
+      
+      <!-- Subscription Section -->
+      <div id="subscriptionSection" class="subscription-section hidden">
+        <h3>
+          <svg class="section-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="gold" stroke="#663D00" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"></path>
+          </svg>
+          Subscription Plans
+        </h3>
+        <div class="subscription-plans">
+          <div class="plan-card">
+            <div class="plan-header">
+              <h4>Weekly Plan</h4>
+              <div class="price">€11<span>/week</span></div>
+            </div>
+            <ul class="plan-features">
+              <li>Unlimited prompt generation</li>
+              <li>Ad-free experience</li>
+              <li>Priority support</li>
+            </ul>
+            <button class="subscribe-btn" data-plan="weekly">
+              Subscribe Now
+            </button>
+          </div>
+          <div class="plan-card featured">
+            <div class="plan-header">
+              <h4>Monthly Plan</h4>
+              <div class="price">€40<span>/month</span></div>
+              <div class="save-badge">Save 10%</div>
+            </div>
+            <ul class="plan-features">
+              <li>Unlimited prompt generation</li>
+              <li>Ad-free experience</li>
+              <li>Priority support</li>
+              <li>Advanced features</li>
+            </ul>
+            <button class="subscribe-btn" data-plan="monthly">
+              Subscribe Now
+            </button>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Payment Modal -->
+      <div id="paymentModal" class="modal hidden">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>Complete Your Subscription</h3>
+            <button class="close-modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form id="payment-form">
+              <div id="card-element"></div>
+              <div id="card-errors" role="alert"></div>
+              <button type="submit" class="payment-btn">
+                Subscribe Now
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
     
     <footer class="footer">
@@ -228,21 +355,14 @@
   
   <!-- Firebase Core SDK (Using local files) -->
   <script src="lib/firebase-app-compat.js"></script>
-  
-  <!-- Add Firebase products that you want to use -->
   <script src="lib/firebase-auth-compat.js"></script>
   <script src="lib/firebase-firestore-compat.js"></script>
   
-  <!-- Set up global Firebase reference -->
-  <script>
-    // Ensure window.firebase is properly set before initialization
-    if (typeof firebase !== 'undefined') {
-      window.firebase = firebase;
-      console.log("Firebase global reference is ready");
-    } else {
-      console.error("Firebase is not defined - SDK loading failed");
-    }
-  </script>
+  <!-- Stripe.js -->
+  <script src="lib/stripe/stripe.js"></script>
+  
+  <!-- Firebase initialization -->
+  <script src="src/js/firebase/firebase-init.js"></script>
   
   <!-- Initialize Firebase -->
   <script src="src/js/firebase/firebase-config.js"></script>
@@ -262,5 +382,15 @@
   
   <!-- Main popup script -->
   <script src="src/js/popup/popup.js"></script>
+  
+  <!-- Add Stripe scripts -->
+  <script src="src/js/stripe/stripe-config.js"></script>
+  <script src="src/js/stripe/stripe-handler.js"></script>
+  <script src="src/js/stripe/stripe-init.js"></script>
+  
+  <!-- UI Enhancement Scripts -->
+  <script src="src/js/popup/ui-enhancements.js"></script>
+  <script src="src/js/popup/animations.js"></script>
+  <script src="src/js/popup/scroll-controls.js"></script>
 </body>
 </html>
