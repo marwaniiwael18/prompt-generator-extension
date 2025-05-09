@@ -633,6 +633,58 @@ document.addEventListener('DOMContentLoaded', function() {
       });
     }
 
+    // Handle subscription button click
+    const subscriptionBtn = document.getElementById('subscriptionBtn');
+    if (subscriptionBtn) {
+        subscriptionBtn.addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const subscriptionContainer = document.getElementById('subscriptionContainer');
+            const authContainer = document.getElementById('authContainer');
+            
+            if (sidebar && subscriptionContainer && authContainer) {
+                // Show sidebar
+                sidebar.classList.add('open');
+                document.getElementById('overlay').classList.add('active');
+                
+                // Show subscription container and hide auth container
+                subscriptionContainer.style.display = 'block';
+                authContainer.style.display = 'none';
+            }
+        });
+    }
+
+    // Handle menu button click
+    const menuBtn = document.getElementById('menuBtn');
+    if (menuBtn) {
+        menuBtn.addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            const subscriptionContainer = document.getElementById('subscriptionContainer');
+            const authContainer = document.getElementById('authContainer');
+            
+            if (sidebar && subscriptionContainer && authContainer) {
+                // Show sidebar
+                sidebar.classList.add('open');
+                document.getElementById('overlay').classList.add('active');
+                
+                // Show auth container and hide subscription container
+                authContainer.style.display = 'block';
+                subscriptionContainer.style.display = 'none';
+            }
+        });
+    }
+
+    // Handle close sidebar button
+    const closeSidebar = document.getElementById('closeSidebar');
+    if (closeSidebar) {
+        closeSidebar.addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.classList.remove('open');
+                document.getElementById('overlay').classList.remove('active');
+            }
+        });
+    }
+
     // Initialize states
     updateSaveButtonState();
     updateGuestLimitDisplay();

@@ -3,6 +3,11 @@
     "name": "AI Prompt Generator",
     "version": "1.0",
     "description": "Generate optimized prompts for better AI interactions",
+    "icons": {
+        "16": "icons/icon16.png",
+        "48": "icons/icon48.png",
+        "128": "icons/icon128.png"
+    },
     "action": {
         "default_popup": "popup.html"
     },
@@ -41,7 +46,8 @@
         "https://*.firebaseio.com/*",
         "https://securetoken.googleapis.com/*",
         "https://identitytoolkit.googleapis.com/*",
-        "https://accounts.google.com/*"
+        "https://accounts.google.com/*",
+        "https://*.stripe.com/*"
     ],
     "oauth2": {
         "client_id": "906955179542-qp4ppjje6vc3shukpebig77uvft6o7gk.apps.googleusercontent.com",
@@ -51,11 +57,11 @@
         ]
     },
     "content_security_policy": {
-        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firebase.googleapis.com https://*.cloudfunctions.net https://*.gstatic.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://*.firebaseapp.com https://accounts.google.com https://www.googleapis.com https://apis.google.com"
+        "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'; connect-src 'self' https://*.googleapis.com https://*.firebaseio.com https://firebase.googleapis.com https://*.cloudfunctions.net https://*.gstatic.com https://securetoken.googleapis.com https://identitytoolkit.googleapis.com https://*.firebaseapp.com https://accounts.google.com https://www.googleapis.com https://apis.google.com https://*.stripe.com; frame-src https://*.stripe.com https://js.stripe.com https://hooks.stripe.com; img-src 'self' https://*.stripe.com data:; worker-src 'self'; child-src 'self';"
     },
     "web_accessible_resources": [
         {
-            "resources": ["lib/*.js"],
+            "resources": ["lib/*.js", "lib/stripe/*.js", "src/js/*.js", "src/js/stripe/*.js"],
             "matches": ["<all_urls>"]
         }
     ],

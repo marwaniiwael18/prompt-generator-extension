@@ -1,10 +1,5 @@
 // Initialize Firebase with window check to avoid reference errors
 (function() {
-  // Debug Firebase SDK loading
-  console.log('Firebase initialization started');
-  console.log('Firebase SDK available:', typeof firebase !== 'undefined');
-  console.log('Window firebase available:', typeof window.firebase !== 'undefined');
-  
   // Your Firebase configuration
   const firebaseConfig = {
     apiKey: "AIzaSyDaYKeX0tRv1RQYtfp3zBiJyN-VFA7rzF8",
@@ -23,16 +18,8 @@
         console.error('Firebase SDK not loaded');
         return;
       }
-      
-      // Check if Firebase is already initialized to avoid multiple instances
-      try {
-        const app = firebase.app();
-        console.log("Firebase already initialized");
-        window.firebaseApp = app;
-      } catch (e) {
-        window.firebaseApp = firebase.initializeApp(firebaseConfig);
-        console.log("Firebase initialized successfully");
-      }
+      window.firebaseApp = firebase.initializeApp(firebaseConfig);
+      console.log("Firebase initialized successfully");
 
       // Initialize Auth and Firestore
       window.auth = firebase.auth();

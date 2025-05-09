@@ -200,6 +200,10 @@ document.addEventListener('DOMContentLoaded', function() {
           showAuthErrorMessage('Incorrect password. Please try again.');
           break;
           
+        case 'auth/invalid-login-credentials':
+          showAuthErrorMessage('Invalid email or password. Please try again.');
+          break;
+          
         case 'auth/email-already-in-use':
           showAuthErrorMessage('Email already in use. Try logging in instead.');
           if (showLogin && document.getElementById('signupEmail')) {
@@ -219,6 +223,10 @@ document.addEventListener('DOMContentLoaded', function() {
           
         case 'auth/weak-password':
           showAuthErrorMessage('Password is too weak. Use at least 6 characters.');
+          break;
+          
+        case 'auth/invalid-login-credentials':
+          showAuthErrorMessage('Invalid email or password. Please try again.');
           break;
           
         default:
@@ -372,6 +380,24 @@ document.addEventListener('DOMContentLoaded', function() {
       loginBtn.disabled = true;
       
       console.log('Attempting to sign in with email/password');
+      
+      // Make sure we have a valid auth object
+      if (!auth || typeof auth.signInWithEmailAndPassword !== 'function') {
+        console.error('Auth object is not properly initialized');
+        handleAuthError({ 
+          code: 'auth/initialization-error', 
+          message: 'Authentication system not properly initialized. Please reload the extension.' 
+        }, {
+          loginBtn,
+          signupBtn,
+          showLogin,
+          showSignup,
+          loginForm,
+          signupForm
+        });
+        return;
+      }
+      
       auth.signInWithEmailAndPassword(email, password)
         .then(userCredential => {
           console.log('User logged in successfully:', userCredential.user.email);

@@ -1,3 +1,6 @@
+// Import Stripe service script
+importScripts('../background/stripe-service.js');
+
 // Handle installation
 chrome.runtime.onInstalled.addListener(function() {
     console.log('AI Prompt Generator extension has been installed');
@@ -40,6 +43,27 @@ chrome.runtime.onMessage.addListener(
             // Open the extension popup programmatically
             chrome.action.openPopup();
             sendResponse({success: true});
+        } else if (request.action === "checkSubscription") {
+            // Check if the user is subscribed
+            // This would normally communicate with your backend API
+            // For now, we're just returning a mock response
+            sendResponse({isSubscribed: true, plan: "premium"});
+        } else if (request.action === "initiateSubscription") {
+            // Initiate the subscription process
+            // This would normally communicate with your backend API
+            console.log("Initiating subscription for user:", request.email, "plan:", request.planId);
+            
+            // Mock a successful response
+            setTimeout(() => {
+                // Send a message back to the popup to complete the subscription flow
+                chrome.runtime.sendMessage({
+                    action: "subscriptionInitiated",
+                    success: true,
+                    clientSecret: "mock_client_secret"
+                });
+            }, 1000);
+            
+            sendResponse({success: true, message: "Subscription initiation started"});
         }
         return true;
     }
