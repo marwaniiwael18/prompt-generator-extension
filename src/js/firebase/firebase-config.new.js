@@ -2,7 +2,7 @@
 (function() {
   // Your Firebase configuration
   const firebaseConfig = {
-    apiKey: "AIzaSyDaYKeX0tRv1RQYtfp3zBiJyN-VFA7rzF8",
+    apiKey: "",//API here 
     authDomain: "ai-prompt-generator-4f901.firebaseapp.com",
     projectId: "ai-prompt-generator-4f901",
     storageBucket: "ai-prompt-generator-4f901.firebasestorage.app",
