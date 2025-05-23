@@ -446,7 +446,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
     // Your API call function
     async function callGoogleAI(input, type) {
-      const apiKey = 'AIzaSyCW6cXEBtj-SukSB2nmb6rh5qoTE0Qylz4';
+      const apiKey = '';//APi 
       
       // Create a more structured prompt template based on the example
       const userPrompt = `Transform this input into a professional, well-structured ${type} prompt for AI assistants:
